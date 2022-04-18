@@ -18,7 +18,7 @@ function display() {
         content += `<tr>
         <td>${dev.name}</td>
         <td>${dev.mac}</td>
-        <td><a id="${dev.name}/withid/${dev.mac}" onClick="changeWindow(this.id)" class="waves-effect waves-light btn-large blue-grey lighten-1 right"><i class="material-icons right">bluetooth_connected</i>Pair</a></td>
+        <td><a id="${dev.name}/withid/${dev.mac}" onClick="authWindow(this.id)" class="waves-effect waves-light btn-large blue-grey lighten-1 right"><i class="material-icons right">bluetooth_connected</i>Pair</a></td>
       </tr>`
     });
     
@@ -28,13 +28,21 @@ function display() {
     devTable.innerHTML = content;
 }
 
-function changeWindow(id) {
+function authWindow(id) {
     let name = id.split("/withid/")[0];
     let mac = id.split("/withid/")[1];
-    console.log(id, name, mac)
+    // console.log(id, name, mac)
     document.getElementById("nav-bar").innerHTML = `<div class="nav-wrapper blue-grey lighten-1 center-align" >
     <a href="#" class="brand-logo">${name}</a>
     </div>`
+    document.getElementById("scan-button").style.display = "none";
+    document.getElementById("scanning-text").style.display = "none";
+    document.getElementById("devices-table").style.display = "none";
+    document.getElementById("auth-input").style.display = "block";
+    document.getElementById("auth-buttons").style.display = "block";
+}
+
+function changeWindow() {
     document.getElementById("scan-button").style.display = "none";
     document.getElementById("scanning-text").style.display = "none";
     document.getElementById("devices-table").style.display = "none";
@@ -42,6 +50,8 @@ function changeWindow(id) {
     document.getElementById("battery-text").style.display = "inline-block";
     document.getElementById("heart-rate").style.display = "block";
     document.getElementById("user-status").style.display = "block";
+    document.getElementById("auth-input").style.display = "none";
+    document.getElementById("auth-buttons").style.display = "none";
 
     monitor();
 
@@ -56,7 +66,10 @@ function initialWindow() {
     document.getElementById("battery-text").style.display = "none";
     document.getElementById("heart-rate").style.display = "none";
     document.getElementById("user-status").style.display = "none";
-    
+    document.getElementById("auth-input").style.display = "none";
+    document.getElementById("auth-buttons").style.display = "none";
+    document.getElementById("cancel-input").style.display = "none";
+    document.getElementById("submit-input").style.display = "none";
     clearInterval(timer);
 }
 

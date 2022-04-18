@@ -35,6 +35,29 @@
     </div>
     <div class="container" id="devices-table" style="margin-top: 50px; display: none" ></div>
 
+    <div class="container" id="auth-input" style="display: none; margin-top: 150px">
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">https</i>
+                <input id="auth" type="text" data-length="32" class="validate"> 
+                <label for="auth">Enter Auth Key</label>
+                <span class="helper-text" data-error="wrong" data-success="right">Example: '94359d5b8b092e1286a43cfb62ee7923'</span>
+            </div>
+          </div>
+    </div>
+
+    <div class="container" id="auth-buttons" style="display: none; margin-left: 20%;">
+        <div class="row">
+            <div class="col s6 valign-wrapper">
+                <a onclick="initialWindow()"  id="cancel-button" class="waves-effect waves-light btn-large blue-grey lighten-1" style="margin-top: 3%;">Cancel</a>
+            </div>
+            <div class="col s6 valign-wrapper">
+                <a onclick="changeWindow()"  id="submit-button" class="waves-effect waves-light btn-large blue-grey lighten-1" style="margin-top: 3%;">Submit</a>
+            </div>
+        </div>
+        
+    </div>
+
     <div class="container" id="heart-rate" style="margin-top: 80px; display: none">
         <p class="center-align" style="font-size: large; font-weight: bold;">Current Heart Rate</p>
         <div class="row">
