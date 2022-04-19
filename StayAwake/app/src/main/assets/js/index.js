@@ -1,7 +1,7 @@
 let timer;
 
 function display() {
-    //window.Android.scanDevices();
+    window.Android.scanDevices();
     document.getElementById("scanning-text").style.display = "inline";
     let devTable = document.getElementById("devices-table"); 
     devTable.style.display = "block";

@@ -1,9 +1,15 @@
 package com.example.stayawake;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.webkit.WebView;
+
 import com.example.stayawake.WebAppInterface;
 
 public class MainActivity extends AppCompatActivity {
