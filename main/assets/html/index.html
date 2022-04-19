@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stay Awake</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    
+</head>
+<body>
+    <nav id="nav-bar"> 
+        <div class="nav-wrapper blue-grey lighten-1 center-align" >
+          <a href="#" class="brand-logo">Stay Awake</a>
+        </div>
+    </nav>
+    
+    <div class="container" style="margin-top: 70px">
+        <div class="row">
+            <div class="col s6 valign-wrapper">
+                <a onclick="display()"  id="scan-button" class="waves-effect waves-light btn-large blue-grey lighten-1" style="margin-top: 3%;"><i class="material-icons right">bluetooth</i>Scan</a>
+                <a onclick="initialWindow()"  id="disconnect-button" class="waves-effect waves-light btn-large blue-grey lighten-1" style="display: none; margin-top: 3%;"><i class="material-icons right">bluetooth_disabled</i>Disconnect</a>
+            </div>
+            <div class="col s6 valign-wrapper">
+                <h6 class="center-align" style="display: none; width: 100%; margin-top: 12%;" id="scanning-text">Scanning...</h6>
+                <div style="margin-left: 30%">
+                    <p id="battery-text" style="display: none; font-size: 20px;"><i id="battery-icon" class="material-icons left font-size: medium" style="line-height: 0.5;">battery_std</i>-%</p>
+                </div>
+            </div>
+        </div>
+        
+
+    </div>
+    <div class="container" id="devices-table" style="margin-top: 50px; display: none" ></div>
+
+    <div class="container" id="auth-input" style="display: none; margin-top: 150px">
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">https</i>
+                <input id="auth" type="text" data-length="32" class="validate"> 
+                <label for="auth">Enter Auth Key</label>
+                <span class="helper-text" data-error="wrong" data-success="right">Example: '94359d5b8b092e1286a43cfb62ee7923'</span>
+            </div>
+          </div>
+    </div>
+
+    <div class="container" id="auth-buttons" style="display: none; margin-left: 20%;">
+        <div class="row">
+            <div class="col s6 valign-wrapper">
+                <a onclick="initialWindow()"  id="cancel-button" class="waves-effect waves-light btn-large blue-grey lighten-1" style="margin-top: 3%;">Cancel</a>
+            </div>
+            <div class="col s6 valign-wrapper">
+                <a onclick="changeWindow()"  id="submit-button" class="waves-effect waves-light btn-large blue-grey lighten-1" style="margin-top: 3%;">Submit</a>
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="container" id="heart-rate" style="margin-top: 80px; display: none">
+        <p class="center-align" style="font-size: large; font-weight: bold;">Current Heart Rate</p>
+        <div class="row">
+            <div class="col s12 center-align">
+                <i class="material-icons font-size: large" style="color:red; ;">favorite</i>
+            </div>  
+        </div>
+        <p class="center-align" style="font-size: larger; font-weight: bold;" id="heart-rate-text">-</p>
+        <p class="center-align" style="font-size: larger; font-weight: bold; font-style: italic;">BPM</p>
+    </div>
+
+    <div class="container" id="chart" style="margin-top: 50px; display: none; width: 500px; height: 250px;">
+        <canvas id="hrChart"></canvas>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@latest/dist/Chart.min.js"></script>
+        <script>
+            const ctx = document.getElementById('hrChart').getContext('2d');
+            const labels = [1, 2, 3];
+            const data = {
+                labels: labels,
+                datasets: [{
+                    label: 'Heart Rate',
+                    data: [65, 80, 77],
+                    fill: false,
+                    borderColor: 'rgb(255, 0, 0)',
+                    tension: 0.1
+                }]
+            };
+            const hrChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    plugins: {
+                    filler: {
+                        propagate: false,
+                    },
+                    title: {
+                        display: true,
+                        text: (ctx) => 'Fill: ' + ctx.chart.data.datasets[0].fill
+                    }
+                    },
+                    interaction: {
+                    intersect: false,
+                    }
+                },
+
+            })
+        </script>
+        
+    </div>
+
+    <div class="container" id="user-status" style="margin-top: 50px; display: none">
+        <div class="row">
+            <div class="col s12 center-align">
+                <i class="material-icons">notifications_active</i>
+                <p style="font-size: larger; font-weight: bold; display: inline;">&nbsp;&nbsp;&nbsp;&nbsp;R u sleepy?</p>
+            </div>  
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script type="text/javascript" src="../js/index.js"></script>
+</body>
+</html>
