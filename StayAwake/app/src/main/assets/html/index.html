@@ -69,10 +69,43 @@
         <p class="center-align" style="font-size: larger; font-weight: bold; font-style: italic;">BPM</p>
     </div>
 
-    <div class="container" id="chart" style="margin-top: 50px; display: block">
+    <div class="container" id="chart" style="margin-top: 50px; display: none; width: 500px; height: 250px;">
+        <canvas id="hrChart"></canvas>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@latest/dist/Chart.min.js"></script>
         <script>
-            const chart = new Chart("#chart");
+            const ctx = document.getElementById('hrChart').getContext('2d');
+            const labels = [1, 2, 3];
+            const data = {
+                labels: labels,
+                datasets: [{
+                    label: 'Heart Rate',
+                    data: [65, 80, 77],
+                    fill: false,
+                    borderColor: 'rgb(255, 0, 0)',
+                    tension: 0.1
+                }]
+            };
+            const hrChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    plugins: {
+                    filler: {
+                        propagate: false,
+                    },
+                    title: {
+                        display: true,
+                        text: (ctx) => 'Fill: ' + ctx.chart.data.datasets[0].fill
+                    }
+                    },
+                    interaction: {
+                    intersect: false,
+                    }
+                },
+
+            })
         </script>
+        
     </div>
 
     <div class="container" id="user-status" style="margin-top: 50px; display: none">
@@ -85,7 +118,6 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@latest/dist/Chart.min.js"></script>
     <script type="text/javascript" src="../js/index.js"></script>
 </body>
 </html>

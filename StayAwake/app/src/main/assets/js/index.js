@@ -1,7 +1,7 @@
 let timer;
 
 function display() {
-    window.Android.showToast("Holi");
+    //window.Android.scanDevices();
     document.getElementById("scanning-text").style.display = "inline";
     let devTable = document.getElementById("devices-table"); 
     devTable.style.display = "block";
@@ -50,6 +50,7 @@ function changeWindow() {
     document.getElementById("disconnect-button").style.display = "inline-block";
     document.getElementById("battery-text").style.display = "inline-block";
     document.getElementById("heart-rate").style.display = "block";
+    document.getElementById("chart").style.display = "block";
     document.getElementById("user-status").style.display = "block";
     document.getElementById("auth-input").style.display = "none";
     document.getElementById("auth-buttons").style.display = "none";
@@ -66,6 +67,7 @@ function initialWindow() {
     document.getElementById("disconnect-button").style.display = "none";
     document.getElementById("battery-text").style.display = "none";
     document.getElementById("heart-rate").style.display = "none";
+    document.getElementById("chart").style.display = "none";
     document.getElementById("user-status").style.display = "none";
     document.getElementById("auth-input").style.display = "none";
     document.getElementById("auth-buttons").style.display = "none";
