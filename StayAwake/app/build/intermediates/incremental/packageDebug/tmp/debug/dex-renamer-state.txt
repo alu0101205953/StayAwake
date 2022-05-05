@@ -1,0 +1,4 @@
+#Thu May 05 13:56:22 WEST 2022
+base.0=/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/build/intermediates/dex/debug/out/classes.dex
+renamed.0=classes.dex
+path.0=classes.dex

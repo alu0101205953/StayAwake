@@ -4,12 +4,247 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:orientation="vertical"
+    tools:context=".MainActivity" >
 
-    <WebView
+    <RelativeLayout
+        android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/webview" />
-    
-    
+        android:layout_height="59dp"
+        android:layout_alignParentTop="true"
+        android:background="#75909c"
+        android:gravity="center"
+        >
+
+        <TextView
+            android:id="@+id/header_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Stay Awake"
+            android:textColor="#FFF"
+            android:textSize="24sp" />
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/Layout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/on"
+            android:layout_width="155dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#75909c"
+            android:insetTop="20dp"
+            android:text="Bluetooth ON"
+            android:layout_margin="20dp"
+            android:textColor="#FFFFFF"/>
+
+        <Button
+            android:id="@+id/off"
+            android:layout_width="176dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#75909c"
+            android:layout_margin="20dp"
+            android:insetTop="20dp"
+            android:text="Bluetooth OFF"
+            android:textColor="#FFFFFF"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/Layout4"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/disconnect"
+            android:layout_width="155dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_margin="30dp"
+            android:backgroundTint="#75909c"
+            android:insetTop="20dp"
+            android:text="Disconnect"
+            android:textColor="#FFFFFF" />
+
+        <ImageView
+            android:id="@+id/battery"
+            android:layout_width="40dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="10dp"
+            app:srcCompat="@mipmap/battery" />
+
+        <TextView
+            android:id="@+id/battery_txt"
+            android:layout_width="10dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            android:maxLines="1"
+            android:text="- %"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/Layout2"
+        android:layout_width="287dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Status:"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/bluetooth_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.9"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="&lt;Bluetooth Status>" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/Layout3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/discover"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:text="Scan Devices"
+            android:backgroundTint="#75909c"
+            android:layout_margin="20dp"
+            android:textColor="#FFFFFF"/>
+
+        <Button
+            android:id="@+id/paired"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="20dp"
+            android:backgroundTint="#75909c"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:text="Show paired Devices"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/Layout5"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginEnd="50dp"
+            android:layout_marginRight="50dp"
+            android:maxLines="1"
+            android:text="Current Heart Rate:"
+            android:textStyle="bold" />
+
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/Layout6"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/heart"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@mipmap/heart" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/Layout7"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/Hr_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginEnd="50dp"
+            android:layout_marginRight="50dp"
+            android:maxLines="1"
+            android:text="-"
+            android:textStyle="bold" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/Layout8"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+
+        <TextView
+            android:id="@+id/hr_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginEnd="50dp"
+            android:layout_marginRight="50dp"
+            android:maxLines="1"
+            android:text="BPM"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/devices_list_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:choiceMode="singleChoice" />
+
+
+
 </LinearLayout>
