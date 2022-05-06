@@ -9,7 +9,7 @@ public final class DeviceContract {
     public static class DeviceEntry implements BaseColumns {
         public static final String TABLE_NAME = "dev_entry";
 
-        public static final String COLUMN_CODE = "code";
+        public static final String COLUMN_ADDRESS = "address";
         public static final String COLUMN_NAME = "name";
     }
 

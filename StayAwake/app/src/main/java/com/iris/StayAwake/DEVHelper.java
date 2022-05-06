@@ -9,7 +9,7 @@ public class DEVHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "dev.db";
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + DeviceContract.DeviceEntry.TABLE_NAME + " (" +
-                    DeviceContract.DeviceEntry.COLUMN_CODE + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    DeviceContract.DeviceEntry.COLUMN_ADDRESS + " TEXT PRIMARY KEY, " +
                     DeviceContract.DeviceEntry.COLUMN_NAME + " TEXT NOT NULL)";
 
     public DEVHelper(Context context) {

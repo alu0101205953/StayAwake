@@ -252,10 +252,11 @@ public class MainActivity extends AppCompatActivity {
                             null);
 
                     while(cursor.moveToNext()) {
-                        long id = cursor.getLong(cursor.getColumnIndexOrThrow(HeartRateContract.HeartRateEntry.COLUMN_CODE));
+                        long id = cursor.getLong(cursor.getColumnIndexOrThrow(HeartRateContract.HeartRateEntry.COLUMN_ADDRESS));
                         Log.d("DB", "Id: " + String.valueOf(id));
                     }
                     //db1.execSQL("DELETE FROM " + DeviceContract.DeviceEntry.TABLE_NAME);
+                    //db.execSQL("DELETE FROM " + HeartRateContract.HeartRateEntry.TABLE_NAME);
                     close();
                     back();
                 }
@@ -451,6 +452,7 @@ public class MainActivity extends AppCompatActivity {
                 });
 
                 ContentValues cv = new ContentValues();
+                cv.put(DeviceContract.DeviceEntry.COLUMN_ADDRESS, address);
                 cv.put(DeviceContract.DeviceEntry.COLUMN_NAME, name);
 
                 db1.replaceOrThrow(DeviceContract.DeviceEntry.TABLE_NAME, null, cv);
@@ -569,6 +571,7 @@ public class MainActivity extends AppCompatActivity {
                         cv.put(HeartRateContract.HeartRateEntry.COLUMN_YEAR, cal.get(Calendar.YEAR));
                         cv.put(HeartRateContract.HeartRateEntry.COLUMN_HOUR, cal.get(Calendar.HOUR_OF_DAY));
                         cv.put(HeartRateContract.HeartRateEntry.COLUMN_MINUTE, cal.get(Calendar.MINUTE));
+                        cv.put(HeartRateContract.HeartRateEntry.COLUMN_ADDRESS, address);
 
                         db.insert(HeartRateContract.HeartRateEntry.TABLE_NAME, null, cv);
 
