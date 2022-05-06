@@ -37,13 +37,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Set;
-import java.util.TimerTask;
-import java.util.UUID;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -52,21 +49,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static UUID MiBand_Service_UUID = UUID.fromString("0000fee1-0000-1000-8000-00805f9b34fb");
-    public static UUID Auth_Characteristic_UUID = UUID.fromString("00000009-0000-3512-2118-0009af100700");
-    public static UUID Descriptor_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-
-    public static UUID MiBand1_Service_UUID = UUID.fromString("0000fee0-0000-1000-8000-00805f9b34fb");
-    public static UUID service = UUID.fromString("0000180d-0000-1000-8000-00805f9b34fb");
-    public static UUID measurementCharacteristic = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb");
-    public static UUID Sensor = UUID.fromString("00000001-0000-3512-2118-0009af100700");
-    public static UUID controlCharacteristic = UUID.fromString("00002a39-0000-1000-8000-00805f9b34fb");
-
-    public static UUID Alert_Service_UUID = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
-    public static UUID Alert_Characteristic_UUID = UUID.fromString("00002a06-0000-1000-8000-00805f9b34fb");
-
-    private static final UUID Battery_Service_UUID = UUID.fromString("0000fee0-0000-1000-8000-00805f9b34fb");
-    private static final UUID Battery_Level_UUID = UUID.fromString("00000006-0000-3512-2118-0009af100700");
 
     // #defines for identifying shared types between calling functions
     private final static int REQUEST_ENABLE_BT = 1; // used to identify adding bluetooth names
@@ -104,44 +86,38 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void display() {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mLayout1.setVisibility(View.GONE);
-                mLayout2.setVisibility(View.GONE);
-                mLayout3.setVisibility(View.GONE);
-                mDevicesListView.setVisibility(View.GONE);
-                mBTArrayAdapter.clear();
+        mHandler.post(() -> {
+            mLayout1.setVisibility(View.GONE);
+            mLayout2.setVisibility(View.GONE);
+            mLayout3.setVisibility(View.GONE);
+            mDevicesListView.setVisibility(View.GONE);
+            mBTArrayAdapter.clear();
 
 
-                mLayout4.setVisibility(View.VISIBLE);
-                mLayout5.setVisibility(View.VISIBLE);
-                mLayout6.setVisibility(View.VISIBLE);
-                mLayout7.setVisibility(View.VISIBLE);
-                mLayout8.setVisibility(View.VISIBLE);
-                mHrValue.setVisibility(View.VISIBLE);
-                mHeader.setText(name);
-            }
+            mLayout4.setVisibility(View.VISIBLE);
+            mLayout5.setVisibility(View.VISIBLE);
+            mLayout6.setVisibility(View.VISIBLE);
+            mLayout7.setVisibility(View.VISIBLE);
+            mLayout8.setVisibility(View.VISIBLE);
+            mHrValue.setVisibility(View.VISIBLE);
+            mHeader.setText(name);
         });
     }
 
     private void back() {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mLayout1.setVisibility(View.VISIBLE);
-                mLayout2.setVisibility(View.VISIBLE);
-                mLayout3.setVisibility(View.VISIBLE);
-                mDevicesListView.setVisibility(View.VISIBLE);
+        mHandler.post(() -> {
+            mLayout1.setVisibility(View.VISIBLE);
+            mLayout2.setVisibility(View.VISIBLE);
+            mLayout3.setVisibility(View.VISIBLE);
+            mDevicesListView.setVisibility(View.VISIBLE);
 
-                mLayout4.setVisibility(View.GONE);
-                mLayout5.setVisibility(View.GONE);
-                mLayout6.setVisibility(View.GONE);
-                mLayout7.setVisibility(View.GONE);
-                mLayout8.setVisibility(View.GONE);
-                mHrValue.setVisibility(View.GONE);
-                mHeader.setText("Stay Awake");
-            }
+            mLayout4.setVisibility(View.GONE);
+            mLayout5.setVisibility(View.GONE);
+            mLayout6.setVisibility(View.GONE);
+            mLayout7.setVisibility(View.GONE);
+            mLayout8.setVisibility(View.GONE);
+            mHrValue.setVisibility(View.GONE);
+            mHeader.setText("Stay Awake");
         });
     }
 
@@ -201,65 +177,36 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
 
-            mScanBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    bluetoothOn();
+            mScanBtn.setOnClickListener(v -> bluetoothOn());
+
+            mOffBtn.setOnClickListener(v -> bluetoothOff());
+
+            mListPairedDevicesBtn.setOnClickListener(v -> listPairedDevices());
+
+            mDiscoverBtn.setOnClickListener(v -> discover());
+
+            mDisconnectBtn.setOnClickListener(v -> {
+                mBluetoothGatt.disconnect();
+                mHandler.post(() -> mBluetoothStatus.setText("Disconnected"));
+                ping.stop();
+                stopVibrate();
+                stopHrMeasure();
+                Cursor cursor = db.query(
+                        HeartRateContract.HeartRateEntry.TABLE_NAME,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null);
+
+                while(cursor.moveToNext()) {
+                    long id = cursor.getLong(cursor.getColumnIndexOrThrow(HeartRateContract.HeartRateEntry.COLUMN_ADDRESS));
                 }
-            });
-
-            mOffBtn.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v){
-                    bluetoothOff();
-
-                }
-            });
-
-            mListPairedDevicesBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v){
-                    listPairedDevices();
-                }
-            });
-
-            mDiscoverBtn.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v){
-                    discover();
-                }
-            });
-
-            mDisconnectBtn.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v){
-                    mBluetoothGatt.disconnect();
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mBluetoothStatus.setText("Disconnected");
-                        }
-                    });
-                    ping.stop();
-                    stopHrMeasure();
-                    Cursor cursor = db.query(
-                            HeartRateContract.HeartRateEntry.TABLE_NAME,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null);
-
-                    while(cursor.moveToNext()) {
-                        long id = cursor.getLong(cursor.getColumnIndexOrThrow(HeartRateContract.HeartRateEntry.COLUMN_ADDRESS));
-                        Log.d("DB", "Id: " + String.valueOf(id));
-                    }
-                    //db1.execSQL("DELETE FROM " + DeviceContract.DeviceEntry.TABLE_NAME);
-                    //db.execSQL("DELETE FROM " + HeartRateContract.HeartRateEntry.TABLE_NAME);
-                    close();
-                    back();
-                }
+                //db1.execSQL("DELETE FROM " + DeviceContract.DeviceEntry.TABLE_NAME);
+                //db.execSQL("DELETE FROM " + HeartRateContract.HeartRateEntry.TABLE_NAME);
+                close();
+                back();
             });
         }
     }
@@ -315,12 +262,7 @@ public class MainActivity extends AppCompatActivity {
             if(mBTAdapter.isEnabled()) {
                 mBTArrayAdapter.clear(); // clear items
                 mBTAdapter.startDiscovery();
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mBluetoothStatus.setText("Discovering...");
-                    }
-                });
+                mHandler.post(() -> mBluetoothStatus.setText("Discovering..."));
                 Toast.makeText(getApplicationContext(), "Discovery started", Toast.LENGTH_SHORT).show();
                 registerReceiver(blReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
             }
@@ -366,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
      */
 
     private void getBattery() {
-        BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(Battery_Service_UUID).getCharacteristic(Battery_Level_UUID);
+        BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Battery_Level_UUID);
         if (characteristic != null) {
             mBluetoothGatt.readCharacteristic(characteristic);
         }
@@ -374,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void enableNotifications(BluetoothGatt gatt, BluetoothGattCharacteristic chrt) {
         gatt.setCharacteristicNotification(chrt, true);
-        BluetoothGattDescriptor descriptor = chrt.getDescriptor(Descriptor_UUID);
+        BluetoothGattDescriptor descriptor = chrt.getDescriptor(com.iris.StayAwake.BluetoothGatt.MiBand3.Descriptor_UUID);
         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
         gatt.writeDescriptor(descriptor);
     }
@@ -403,8 +345,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startHrMeasure() {
-        BluetoothGattCharacteristic hmc = mBluetoothGatt.getService(service).getCharacteristic(controlCharacteristic);
-        BluetoothGattCharacteristic sensorChar = mBluetoothGatt.getService(MiBand1_Service_UUID).getCharacteristic(Sensor);
+        BluetoothGattCharacteristic hmc = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Control_Characteristic_UUID);
+        BluetoothGattCharacteristic sensorChar = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Sensor_Characteristic_UUID);
         sensorChar.setValue(new byte[] {0x01, 0x03, 0x19});
         mBluetoothGatt.writeCharacteristic(sensorChar);
 
@@ -417,19 +359,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void stopHrMeasure() {
-        BluetoothGattCharacteristic hmc = mBluetoothGatt.getService(service).getCharacteristic(controlCharacteristic);
+        BluetoothGattCharacteristic hmc = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Control_Characteristic_UUID);
         hmc.setValue(new byte[] {0x15, 0x01, 0x00});
         mBluetoothGatt.writeCharacteristic(hmc);
     }
 
     private void startVibrate() {
-        BluetoothGattCharacteristic chr = mBluetoothGatt.getService(Alert_Service_UUID).getCharacteristic(Alert_Characteristic_UUID);
+        BluetoothGattCharacteristic chr = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.Alert_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Alert_Characteristic_UUID);
         chr.setValue(new byte[] {2});
         mBluetoothGatt.writeCharacteristic(chr);
     }
 
     private void stopVibrate() {
-        BluetoothGattCharacteristic chr = mBluetoothGatt.getService(Alert_Service_UUID).getCharacteristic(Alert_Characteristic_UUID);
+        BluetoothGattCharacteristic chr = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.Alert_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Alert_Characteristic_UUID);
         chr.setValue(new byte[] {0});
         mBluetoothGatt.writeCharacteristic(chr);
     }
@@ -444,12 +386,7 @@ public class MainActivity extends AppCompatActivity {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 //bluetooth is connected so discover services
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mBluetoothStatus.setText("Connected");
-                    }
-                });
+                mHandler.post(() -> mBluetoothStatus.setText("Connected"));
 
                 ContentValues cv = new ContentValues();
                 cv.put(DeviceContract.DeviceEntry.COLUMN_ADDRESS, address);
@@ -468,7 +405,6 @@ public class MainActivity extends AppCompatActivity {
 
                 while(cursor.moveToNext()) {
                     String id = cursor.getString(cursor.getColumnIndexOrThrow(DeviceContract.DeviceEntry.COLUMN_NAME));
-                    Log.d("DB1", "Id: " + id);
                 }
 
                 gatt.discoverServices();
@@ -480,22 +416,13 @@ public class MainActivity extends AppCompatActivity {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 for (BluetoothGattService service : gatt.getServices()) {
                     Log.d("Services", "Found Service " + service.getUuid().toString());
-                    if (service.getUuid().equals(Battery_Service_UUID)) {
-                        Log.d("Bat-Srv", String.valueOf(service.getUuid()));
-
-                        BluetoothGattCharacteristic characteristic = service.getCharacteristic(Battery_Level_UUID);
-
-                        if (characteristic != null) {
-                            //gatt.readCharacteristic(characteristic);
-                        }
-                    }
 
                     for(BluetoothGattCharacteristic mCharacteristic: service.getCharacteristics())
                     {
                         Log.d("Services", "Found Characteristic " + mCharacteristic.getUuid().toString());
                     }
                 }
-                enableNotifications(gatt, mBluetoothGatt.getService(MiBand_Service_UUID).getCharacteristic(Auth_Characteristic_UUID));
+                enableNotifications(gatt, mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Auth_Characteristic_UUID));
             }
         }
 
@@ -508,12 +435,7 @@ public class MainActivity extends AppCompatActivity {
                         final int value = new BigInteger(String.valueOf(data[1])).intValue();
 
                         Log.d("Bat", "battery level: " + value + "%");
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                mBatteryValue.setText(value + " %");
-                            }
-                        });
+                        mHandler.post(() -> mBatteryValue.setText(value + " %"));
                         startHrMeasure();
                         break;
                 }
@@ -524,7 +446,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            BluetoothGattCharacteristic chrt = gatt.getService(MiBand_Service_UUID).getCharacteristic(Auth_Characteristic_UUID);
+            BluetoothGattCharacteristic chrt = gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Auth_Characteristic_UUID);
             Log.d("BLE", "Received characteristics changed event : " + characteristic.getUuid());
             byte[] charValue = Arrays.copyOfRange(characteristic.getValue(), 0, 3);
             switch (characteristic.getUuid().toString()) {
@@ -571,16 +493,12 @@ public class MainActivity extends AppCompatActivity {
                         cv.put(HeartRateContract.HeartRateEntry.COLUMN_YEAR, cal.get(Calendar.YEAR));
                         cv.put(HeartRateContract.HeartRateEntry.COLUMN_HOUR, cal.get(Calendar.HOUR_OF_DAY));
                         cv.put(HeartRateContract.HeartRateEntry.COLUMN_MINUTE, cal.get(Calendar.MINUTE));
+                        cv.put(HeartRateContract.HeartRateEntry.COLUMN_SECOND, cal.get(Calendar.SECOND));
                         cv.put(HeartRateContract.HeartRateEntry.COLUMN_ADDRESS, address);
 
                         db.insert(HeartRateContract.HeartRateEntry.TABLE_NAME, null, cv);
 
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                mHrValue.setText(heartRateValue);
-                            }
-                        });
+                        mHandler.post(() -> mHrValue.setText(heartRateValue));
                     } else {
                         startVibrate();
                     }
@@ -595,7 +513,7 @@ public class MainActivity extends AppCompatActivity {
                 case "00000001-0000-3512-2118-0009af100700": {
                     switch (Arrays.toString(characteristic.getValue())) {
                         case "[1, 3, 25]": {
-                            enableNotifications(gatt, gatt.getService(service).getCharacteristic(measurementCharacteristic));
+                            enableNotifications(gatt, gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Measurement_Characteristic_UUID));
                             break;
                         }
                     }
@@ -607,11 +525,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             Log.d("DESC", "Desc write");
-            BluetoothGattCharacteristic chrt = gatt.getService(MiBand_Service_UUID).getCharacteristic(Auth_Characteristic_UUID);
+            BluetoothGattCharacteristic chrt = gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Auth_Characteristic_UUID);
             switch (descriptor.getCharacteristic().getUuid().toString()) {
                 case "00000009-0000-3512-2118-0009af100700":
-                    String s = new String(auth_char_key, StandardCharsets.UTF_8);
-                    Log.d("DESC", s + " " + Integer.toString(auth_char_key.length));
                     byte[] rq = Arrays.copyOf(new byte[]{0x01, 0x08}, 2 + auth_char_key.length);
                     System.arraycopy(auth_char_key, 0, rq, 2, auth_char_key.length);
                     chrt.setValue(rq);
@@ -621,7 +537,7 @@ public class MainActivity extends AppCompatActivity {
                 case "00002a37-0000-1000-8000-00805f9b34fb":
                     switch (Arrays.toString(descriptor.getValue())) {
                         case "[1, 0]":
-                            BluetoothGattCharacteristic hmc = gatt.getService(service).getCharacteristic(controlCharacteristic);
+                            BluetoothGattCharacteristic hmc = gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Control_Characteristic_UUID);
                             hmc.setValue(new byte[] {0x15, 0x01, 0x01});
                             Log.d("INFO", "HMC " + gatt.writeCharacteristic(hmc));
                             break;
@@ -673,35 +589,3 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 
-class Timer {
-
-    private int mili;
-    private TimerTask task;
-    private java.util.Timer timer;
-    private Behavior behavior;
-
-    public Timer(int time, Behavior b){
-        mili = time;
-        behavior = b;
-        timer = new java.util.Timer();
-    }
-
-    public void start(){
-        task = new TimerTask() {
-            @Override
-            public void run() {
-                behavior.run();
-            }
-        };
-        timer.scheduleAtFixedRate(task,0,mili);
-    }
-
-    public void stop(){
-        timer.cancel();
-        task.cancel();
-    }
-}
-
-interface Behavior {
-    void run();
-}

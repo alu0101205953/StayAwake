@@ -9,15 +9,16 @@ public class HeartRate {
     private String year;
     private String hour;
     private String minute;
-    private String dev_code;
+    private String second;
 
-    public HeartRate (String value, String day, String month, String year, String hour, String minute) {
+    public HeartRate (String value, String day, String month, String year, String hour, String minute, String second) {
         this.value = value;
         this.day = day;
         this.month = month;
         this.year = year;
         this.hour = hour;
         this.minute = minute;
+        this.second = second;
     }
 
     public String getValue() {
@@ -42,6 +43,10 @@ public class HeartRate {
 
     public String getMinute() {
         return minute;
+    }
+
+    public String getSecond() {
+        return second;
     }
 
 }

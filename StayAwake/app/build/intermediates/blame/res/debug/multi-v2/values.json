@@ -1,27 +1,27 @@
 {
     "logs": [
         {
-            "outputFile": "/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml",
+            "outputFile": "/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml",
             "map": [
                 {
-                    "source": "/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/res/values/strings.xml",
+                    "source": "/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/res/values/colors.xml",
                     "from": {
-                        "startLines": "1",
-                        "startColumns": "4",
-                        "startOffsets": "16",
-                        "endColumns": "47",
-                        "endOffsets": "59"
+                        "startLines": "4,2,3",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "153,55,102",
+                        "endColumns": "45,46,50",
+                        "endOffsets": "194,97,148"
                     },
                     "to": {
-                        "startLines": "184",
-                        "startColumns": "4",
-                        "startOffsets": "12408",
-                        "endColumns": "47",
-                        "endOffsets": "12451"
+                        "startLines": "32,33,34",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "2186,2232,2279",
+                        "endColumns": "45,46,50",
+                        "endOffsets": "2227,2274,2325"
                     }
                 },
                 {
-                    "source": "/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/res/values/styles.xml",
+                    "source": "/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/res/values/styles.xml",
                     "from": {
                         "startLines": "3",
                         "startColumns": "4",
@@ -40,20 +40,20 @@
                     }
                 },
                 {
-                    "source": "/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/res/values/colors.xml",
+                    "source": "/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/res/values/strings.xml",
                     "from": {
-                        "startLines": "4,2,3",
-                        "startColumns": "4,4,4",
-                        "startOffsets": "153,55,102",
-                        "endColumns": "45,46,50",
-                        "endOffsets": "194,97,148"
+                        "startLines": "1",
+                        "startColumns": "4",
+                        "startOffsets": "16",
+                        "endColumns": "47",
+                        "endOffsets": "59"
                     },
                     "to": {
-                        "startLines": "32,33,34",
-                        "startColumns": "4,4,4",
-                        "startOffsets": "2186,2232,2279",
-                        "endColumns": "45,46,50",
-                        "endOffsets": "2227,2274,2325"
+                        "startLines": "184",
+                        "startColumns": "4",
+                        "startOffsets": "12408",
+                        "endColumns": "47",
+                        "endOffsets": "12451"
                     }
                 },
                 {

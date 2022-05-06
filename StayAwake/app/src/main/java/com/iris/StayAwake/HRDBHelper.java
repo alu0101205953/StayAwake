@@ -16,6 +16,7 @@ public class HRDBHelper extends SQLiteOpenHelper {
             HeartRateContract.HeartRateEntry.COLUMN_YEAR + " TEXT NOT NULL, " +
             HeartRateContract.HeartRateEntry.COLUMN_HOUR + " TEXT NOT NULL, " +
             HeartRateContract.HeartRateEntry.COLUMN_MINUTE + " TEXT NOT NULL, " +
+            HeartRateContract.HeartRateEntry.COLUMN_SECOND + " TEXT NOT NULL, " +
             HeartRateContract.HeartRateEntry.COLUMN_ADDRESS + " TEXT NOT NULL, " +
             " FOREIGN KEY (" + HeartRateContract.HeartRateEntry.COLUMN_ADDRESS + ") REFERENCES " + DeviceContract.DeviceEntry.TABLE_NAME + "(" + DeviceContract.DeviceEntry.COLUMN_ADDRESS + "))";
 

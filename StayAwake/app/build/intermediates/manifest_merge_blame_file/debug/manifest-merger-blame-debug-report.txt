@@ -6,65 +6,65 @@
 6
 7    <uses-sdk
 8        android:minSdkVersion="15"
-8-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml
+8-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml
 9        android:targetSdkVersion="23" />
-9-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml
+9-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml
 10
 11    <uses-permission android:name="android.permission.BLUETOOTH" />
-11-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:5:5-68
-11-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:5:22-65
+11-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:5:5-68
+11-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:5:22-65
 12    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-12-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:6:5-74
-12-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:6:22-71
+12-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:6:5-74
+12-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:6:22-71
 13    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-13-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:7:5-79
-13-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:7:22-76
+13-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:7:5-79
+13-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:7:22-76
 14    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-14-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:8:5-81
-14-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:8:22-78
+14-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:8:5-81
+14-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:8:22-78
 15
 16    <permission
-16-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:10:5-89
+16-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:10:5-89
 17        android:name="android.permission.BLUETOOTH"
-17-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:10:17-60
+17-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:10:17-60
 18        android:label="BLUETOOTH" />
-18-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:10:61-86
+18-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:10:61-86
 19    <permission android:name="android.permission.BLUETOOTH_ADMIN" />
-19-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:11:5-69
-19-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:11:17-66
+19-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:11:5-69
+19-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:11:17-66
 20    <permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-20-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:12:5-74
-20-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:12:17-71
+20-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:12:5-74
+20-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:12:17-71
 21    <permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-21-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:13:5-76
-21-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:13:17-73
+21-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:13:5-76
+21-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:13:17-73
 22
 23    <application
-23-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:15:5-28:19
+23-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:15:5-28:19
 24        android:allowBackup="true"
-24-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:16:9-35
+24-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:16:9-35
 25        android:debuggable="true"
 26        android:icon="@mipmap/ic_launcher"
-26-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:17:9-43
+26-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:17:9-43
 27        android:label="@string/app_name"
-27-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:18:9-41
+27-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:18:9-41
 28        android:supportsRtl="true"
-28-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:19:9-35
+28-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:19:9-35
 29        android:testOnly="true"
 30        android:theme="@style/AppTheme" >
-30-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:20:9-40
+30-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:20:9-40
 31        <activity android:name="com.iris.StayAwake.MainActivity" >
-31-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:21:9-27:20
-31-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:21:19-65
+31-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:21:9-27:20
+31-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:21:19-65
 32            <intent-filter>
-32-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:22:13-26:29
+32-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:22:13-26:29
 33                <action android:name="android.intent.action.MAIN" />
-33-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:23:17-69
-33-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:23:25-66
+33-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:23:17-69
+33-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:23:25-66
 34
 35                <category android:name="android.intent.category.LAUNCHER" />
-35-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:25:17-77
-35-->/home/iris/Descargas/StayAwake/Android-Simple-Bluetooth-Example-master/app/src/main/AndroidManifest.xml:25:27-74
+35-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:25:17-77
+35-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:25:27-74
 36            </intent-filter>
 37        </activity>
 38    </application>

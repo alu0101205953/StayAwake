@@ -15,6 +15,7 @@ public final class HeartRateContract {
         public static final String COLUMN_YEAR = "year";
         public static final String COLUMN_HOUR = "hour";
         public static final String COLUMN_MINUTE = "minute";
+        public static final String COLUMN_SECOND = "second";
         public static final String COLUMN_ADDRESS = "address";
 
 
