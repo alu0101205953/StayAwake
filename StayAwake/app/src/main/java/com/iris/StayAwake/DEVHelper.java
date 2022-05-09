@@ -27,4 +27,9 @@ public class DEVHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    public void clearDatabase(SQLiteDatabase db) {
+        String clearDBQuery = "DELETE FROM " + DeviceContract.DeviceEntry.TABLE_NAME;
+        db.execSQL(clearDBQuery);
+    }
+
 }

@@ -75,8 +75,11 @@ public class MainActivity extends AppCompatActivity {
     private Timer ping;
     private HRDBHelper dbHelper;
     private DEVHelper devHelper;
+    private SETHelper setHelper;
     private SQLiteDatabase db;
     private SQLiteDatabase db1;
+    private SQLiteDatabase db2;
+    private SQLiteDatabase db3;
 
     private Handler mHandler;
 
@@ -88,8 +91,9 @@ public class MainActivity extends AppCompatActivity {
     String address;
     int ignored = 0, stored = 0, group = 0;
     //This should be placed on a settings database
-    int maxGroups = 4; //Should be even I guess
-    int maxStored = 200;
+    int maxIgnored;
+    int maxGroups; //Should be even I guess
+    int maxStored;
 
     private void display() {
         mHandler.post(() -> {
@@ -132,7 +136,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         dbHelper.close();
-        unregisterReceiver(blReceiver);
+        devHelper.close();
+        setHelper.close();
     }
 
     @Override
@@ -168,8 +173,12 @@ public class MainActivity extends AppCompatActivity {
         db = dbHelper.getWritableDatabase();
         devHelper = new DEVHelper(this);
         db1 = devHelper.getWritableDatabase();
+        setHelper = new SETHelper(this);
+        db2 = setHelper.getWritableDatabase();
+        db3 = setHelper.getReadableDatabase();
 
         heartRateValues = new ArrayList<>();
+        means = new ArrayList<>();
         // Ask for location permission if not already allowed
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
@@ -197,23 +206,49 @@ public class MainActivity extends AppCompatActivity {
                 ping.stop();
                 stopVibrate();
                 stopHrMeasure();
-                Cursor cursor = db.query(
-                        HeartRateContract.HeartRateEntry.TABLE_NAME,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null);
 
-                while(cursor.moveToNext()) {
-                    long id = cursor.getLong(cursor.getColumnIndexOrThrow(HeartRateContract.HeartRateEntry.COLUMN_ADDRESS));
-                }
-                /* db1.execSQL("DELETE FROM " + DeviceContract.DeviceEntry.TABLE_NAME);
-                db.execSQL("DELETE FROM " + HeartRateContract.HeartRateEntry.TABLE_NAME); */
+                /* dbHelper.clearDatabase(db);
+                devHelper.clearDatabase(db1);
+                setHelper.clearDatabase(db2); */
+
                 close();
                 back();
             });
+
+            Cursor mCursor = db3.rawQuery("SELECT * FROM " + SettingsContract.SettingsEntry.TABLE_NAME, null);
+            if(mCursor != null && mCursor.getCount() > 0) {
+                /*maxIgnored = Integer.parseInt(mCursor.getString(mCursor.getColumnIndexOrThrow((SettingsContract.SettingsEntry.COLUMN_VALUE))));
+                mCursor.moveToNext();
+                maxGroups = Integer.parseInt(mCursor.getString(mCursor.getColumnIndexOrThrow((SettingsContract.SettingsEntry.COLUMN_VALUE))));
+                mCursor.moveToNext();
+                maxStored = Integer.parseInt(mCursor.getString(mCursor.getColumnIndexOrThrow((SettingsContract.SettingsEntry.COLUMN_VALUE))));*/
+            } else {
+                maxIgnored = 5;
+                maxGroups = 4; //Should be even I guess
+                maxStored = 5; //For testing purposes
+
+                ContentValues cv = new ContentValues();
+                cv.put(SettingsContract.SettingsEntry.COLUMN_VARIABLE, "maxIgnored");
+                cv.put(SettingsContract.SettingsEntry.COLUMN_VALUE, maxIgnored);
+                cv.put(SettingsContract.SettingsEntry.COLUMN_DESCRIPTION, "Number of measurements ignored in order to let the sensor stabilize");
+
+                db2.insertOrThrow(SettingsContract.SettingsEntry.TABLE_NAME, null, cv);
+
+                ContentValues cv2 = new ContentValues();
+                cv2.put(SettingsContract.SettingsEntry.COLUMN_VARIABLE, "maxGroups");
+                cv2.put(SettingsContract.SettingsEntry.COLUMN_VALUE, maxGroups);
+                cv2.put(SettingsContract.SettingsEntry.COLUMN_DESCRIPTION, "Number of groups of measurements to calculate a trend");
+
+                db2.insertOrThrow(SettingsContract.SettingsEntry.TABLE_NAME, null, cv2);
+
+                ContentValues cv3 = new ContentValues();
+                cv3.put(SettingsContract.SettingsEntry.COLUMN_VARIABLE, "maxStored");
+                cv3.put(SettingsContract.SettingsEntry.COLUMN_VALUE, maxStored);
+                cv3.put(SettingsContract.SettingsEntry.COLUMN_DESCRIPTION, "Number of measurements stored to create a group mean");
+
+                db2.insertOrThrow(SettingsContract.SettingsEntry.TABLE_NAME, null, cv3);
+            }
+            mCursor.close();
         }
     }
 
@@ -397,31 +432,49 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void HRCallback (byte currentHrValue) {
-        if (currentHrValue != 0) { //Check if sensor is working properly
+        if (currentHrValue > 0) { //Check if sensor is working properly
             final String heartRateValue = String.valueOf(currentHrValue);
             Log.d("HR", "Received: " + heartRateValue);
 
-            // Ignore first 20 measurements in order to stabilize sensor
-            if (ignored <= 20) {
+            // Ignore first measurements in order to stabilize sensor
+            if (ignored < maxIgnored) {
                 ignored++;
+                Log.d("CALLBACK", "Ignored");
             } else if (stored <= maxStored){ //Learning process
                 heartRateValues.add(Integer.valueOf(currentHrValue));
                 stored++;
-
+                Log.d("CALLBACK", "Stored");
                 Calendar cal = Calendar.getInstance();
                 saveData(heartRateValue, cal);
 
                 mHandler.post(() -> mHrValue.setText(heartRateValue));
-            } else if (group <= maxGroups){
+            } else if (group < maxGroups){
                 stored = 0;
-                group++;
                 means.add(meanOfGroup());
-            } else {
-                Pair<Integer, Integer> trend = calculateTrend();
+                group++;
+            } else if (group == maxGroups) {
+                stored = 0;
+                group = 0;
+                Pair<Double, Double> trend = calculateTrend();
+                Log.d("CALLBACK", "Calculated trend: " + trend);
+                if (trend.first < 0) startVibrate(); // for example??? Have to adjust it after testing
             }
+        } else {
 
         }
     }
+
+    private void wristAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Band");
+        builder.setMessage("Please, make sure you have your band correctly adjusted on your wrist.");
+        builder.setPositiveButton("Ok", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
 
     private int meanOfGroup() {
         //Remove the maximum and minimum 25% of the values to prevent anomalies
@@ -436,40 +489,52 @@ public class MainActivity extends AppCompatActivity {
         for (int x: heartRateValues) acc += x;
         int mean = acc / heartRateValues.size();
         heartRateValues.clear();
+        Log.d("CALLBACK", "Calculated mean: " + mean);
         return mean;
     }
 
-    private Pair<Integer, Integer> calculateTrend() { //Using the two means method
+    private Pair<Double, Double> calculateTrend() { //Using the two means method
         //Split observations into two groups
         ArrayList<Integer> firstGroup = new ArrayList<>(means.subList(0, (means.size()) / 2));
         ArrayList<Integer> secondGroup = new ArrayList<>(means.subList(means.size() / 2, means.size()));
 
+        Log.d("TREND", String.valueOf(firstGroup));
+        Log.d("TREND", String.valueOf(secondGroup));
+
         int t1, t2, y1, y2;
         int acc = 0;
+        int aux = 1;
 
         for (int i = 0; i < firstGroup.size(); i++) {
-            acc += i + 1;
+            acc += aux;
+            aux++;
         }
         t1 = acc / firstGroup.size();
+
+        Log.d("TREND", String.valueOf(t1));
 
         acc = 0;
         for (int x: firstGroup) acc += x;
         y1 = acc / firstGroup.size();
+        Log.d("TREND", String.valueOf(y1));
 
         acc = 0;
         for (int i = 0; i < secondGroup.size(); i++) {
-            acc += i + 1;
+            acc += aux;
+            aux++;
         }
         t2 = acc / secondGroup.size();
+        Log.d("TREND", String.valueOf(t2));
 
         acc = 0;
         for (int x: secondGroup) acc += x;
         y2 = acc / secondGroup.size();
+        Log.d("TREND", String.valueOf(y2));
 
-        int m = (y2 - y1) / (t2 - t1);
-        int n = (m * t1) + y1;
+        double m = (double)(y2 - y1) / (t2 - t1);
+        double n = (m * t1) + y1;
 
-        Pair<Integer, Integer> trend = new Pair<>(m, n);
+        Pair<Double, Double> trend = new Pair<>(m, n);
         return trend;
     }
     /**
@@ -489,19 +554,6 @@ public class MainActivity extends AppCompatActivity {
                 cv.put(DeviceContract.DeviceEntry.COLUMN_NAME, name);
 
                 db1.replaceOrThrow(DeviceContract.DeviceEntry.TABLE_NAME, null, cv);
-
-                Cursor cursor = db1.query(
-                        DeviceContract.DeviceEntry.TABLE_NAME,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null);
-
-                while(cursor.moveToNext()) {
-                    String id = cursor.getString(cursor.getColumnIndexOrThrow(DeviceContract.DeviceEntry.COLUMN_NAME));
-                }
 
                 gatt.discoverServices();
             }

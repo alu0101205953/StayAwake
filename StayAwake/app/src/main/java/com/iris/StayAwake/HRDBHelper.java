@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class HRDBHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "pym.db";
+    private static final String DATABASE_NAME = "hr.db";
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + HeartRateContract.HeartRateEntry.TABLE_NAME + " (" +
             HeartRateContract.HeartRateEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -33,6 +33,11 @@ public class HRDBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + HeartRateContract.HeartRateEntry.TABLE_NAME);
         onCreate(db);
+    }
+
+    public void clearDatabase(SQLiteDatabase db) {
+        String clearDBQuery = "DELETE FROM " + HeartRateContract.HeartRateEntry.TABLE_NAME;
+        db.execSQL(clearDBQuery);
     }
 
 }
