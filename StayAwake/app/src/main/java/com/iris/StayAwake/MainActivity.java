@@ -27,6 +27,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -40,6 +41,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Set;
 
 import javax.crypto.Cipher;
@@ -69,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> mBTArrayAdapter;
     private BluetoothGatt mBluetoothGatt;
     private ArrayList<Integer> heartRateValues;
+    private ArrayList<Integer> means;
     private Timer ping;
     private HRDBHelper dbHelper;
     private DEVHelper devHelper;
@@ -83,7 +86,10 @@ public class MainActivity extends AppCompatActivity {
 
     String name;
     String address;
-
+    int ignored = 0, stored = 0, group = 0;
+    //This should be placed on a settings database
+    int maxGroups = 4; //Should be even I guess
+    int maxStored = 200;
 
     private void display() {
         mHandler.post(() -> {
@@ -203,8 +209,8 @@ public class MainActivity extends AppCompatActivity {
                 while(cursor.moveToNext()) {
                     long id = cursor.getLong(cursor.getColumnIndexOrThrow(HeartRateContract.HeartRateEntry.COLUMN_ADDRESS));
                 }
-                //db1.execSQL("DELETE FROM " + DeviceContract.DeviceEntry.TABLE_NAME);
-                //db.execSQL("DELETE FROM " + HeartRateContract.HeartRateEntry.TABLE_NAME);
+                /* db1.execSQL("DELETE FROM " + DeviceContract.DeviceEntry.TABLE_NAME);
+                db.execSQL("DELETE FROM " + HeartRateContract.HeartRateEntry.TABLE_NAME); */
                 close();
                 back();
             });
@@ -376,6 +382,96 @@ public class MainActivity extends AppCompatActivity {
         mBluetoothGatt.writeCharacteristic(chr);
     }
 
+    private void saveData(String value, Calendar cal) {
+        ContentValues cv = new ContentValues();
+        cv.put(HeartRateContract.HeartRateEntry.COLUMN_VALUE, value);
+        cv.put(HeartRateContract.HeartRateEntry.COLUMN_DAY, cal.get(Calendar.DAY_OF_MONTH));
+        cv.put(HeartRateContract.HeartRateEntry.COLUMN_MONTH, cal.get(Calendar.MONTH) + 1);
+        cv.put(HeartRateContract.HeartRateEntry.COLUMN_YEAR, cal.get(Calendar.YEAR));
+        cv.put(HeartRateContract.HeartRateEntry.COLUMN_HOUR, cal.get(Calendar.HOUR_OF_DAY));
+        cv.put(HeartRateContract.HeartRateEntry.COLUMN_MINUTE, cal.get(Calendar.MINUTE));
+        cv.put(HeartRateContract.HeartRateEntry.COLUMN_SECOND, cal.get(Calendar.SECOND));
+        cv.put(HeartRateContract.HeartRateEntry.COLUMN_ADDRESS, address);
+
+        db.insert(HeartRateContract.HeartRateEntry.TABLE_NAME, null, cv);
+    }
+
+    private void HRCallback (byte currentHrValue) {
+        if (currentHrValue != 0) { //Check if sensor is working properly
+            final String heartRateValue = String.valueOf(currentHrValue);
+            Log.d("HR", "Received: " + heartRateValue);
+
+            // Ignore first 20 measurements in order to stabilize sensor
+            if (ignored <= 20) {
+                ignored++;
+            } else if (stored <= maxStored){ //Learning process
+                heartRateValues.add(Integer.valueOf(currentHrValue));
+                stored++;
+
+                Calendar cal = Calendar.getInstance();
+                saveData(heartRateValue, cal);
+
+                mHandler.post(() -> mHrValue.setText(heartRateValue));
+            } else if (group <= maxGroups){
+                stored = 0;
+                group++;
+                means.add(meanOfGroup());
+            } else {
+                Pair<Integer, Integer> trend = calculateTrend();
+            }
+
+        }
+    }
+
+    private int meanOfGroup() {
+        //Remove the maximum and minimum 25% of the values to prevent anomalies
+        for (int i = 0; i < ((25 * maxStored) / 100); i++) {
+            heartRateValues.remove(Collections.max(heartRateValues));
+        }
+        for (int i = 0; i < ((25 * maxStored) / 100); i++) {
+            heartRateValues.remove(Collections.min(heartRateValues));
+        }
+
+        int acc = 0;
+        for (int x: heartRateValues) acc += x;
+        int mean = acc / heartRateValues.size();
+        heartRateValues.clear();
+        return mean;
+    }
+
+    private Pair<Integer, Integer> calculateTrend() { //Using the two means method
+        //Split observations into two groups
+        ArrayList<Integer> firstGroup = new ArrayList<>(means.subList(0, (means.size()) / 2));
+        ArrayList<Integer> secondGroup = new ArrayList<>(means.subList(means.size() / 2, means.size()));
+
+        int t1, t2, y1, y2;
+        int acc = 0;
+
+        for (int i = 0; i < firstGroup.size(); i++) {
+            acc += i + 1;
+        }
+        t1 = acc / firstGroup.size();
+
+        acc = 0;
+        for (int x: firstGroup) acc += x;
+        y1 = acc / firstGroup.size();
+
+        acc = 0;
+        for (int i = 0; i < secondGroup.size(); i++) {
+            acc += i + 1;
+        }
+        t2 = acc / secondGroup.size();
+
+        acc = 0;
+        for (int x: secondGroup) acc += x;
+        y2 = acc / secondGroup.size();
+
+        int m = (y2 - y1) / (t2 - t1);
+        int n = (m * t1) + y1;
+
+        Pair<Integer, Integer> trend = new Pair<>(m, n);
+        return trend;
+    }
     /**
      * Test playground
      */
@@ -467,8 +563,6 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("AUTH", "Success");
                             display();
                             getBattery();
-
-                            //startVibrate();
                             break;
                         }
                         default:
@@ -479,29 +573,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 case "00002a37-0000-1000-8000-00805f9b34fb":
                     byte currentHrValue = characteristic.getValue()[1];
-                    if (currentHrValue != 0) {
-                        final String heartRateValue = String.valueOf(currentHrValue);
-                        heartRateValues.add(Integer.valueOf(currentHrValue));
-                        Log.d("HR", "Received: " + heartRateValue);
-                        Calendar cal = Calendar.getInstance();
-
-
-                        ContentValues cv = new ContentValues();
-                        cv.put(HeartRateContract.HeartRateEntry.COLUMN_VALUE, heartRateValue);
-                        cv.put(HeartRateContract.HeartRateEntry.COLUMN_DAY, cal.get(Calendar.DAY_OF_MONTH));
-                        cv.put(HeartRateContract.HeartRateEntry.COLUMN_MONTH, cal.get(Calendar.MONTH) + 1);
-                        cv.put(HeartRateContract.HeartRateEntry.COLUMN_YEAR, cal.get(Calendar.YEAR));
-                        cv.put(HeartRateContract.HeartRateEntry.COLUMN_HOUR, cal.get(Calendar.HOUR_OF_DAY));
-                        cv.put(HeartRateContract.HeartRateEntry.COLUMN_MINUTE, cal.get(Calendar.MINUTE));
-                        cv.put(HeartRateContract.HeartRateEntry.COLUMN_SECOND, cal.get(Calendar.SECOND));
-                        cv.put(HeartRateContract.HeartRateEntry.COLUMN_ADDRESS, address);
-
-                        db.insert(HeartRateContract.HeartRateEntry.TABLE_NAME, null, cv);
-
-                        mHandler.post(() -> mHrValue.setText(heartRateValue));
-                    } else {
-                        startVibrate();
-                    }
+                    HRCallback(currentHrValue);
                     break;
             }
         }
