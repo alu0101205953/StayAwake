@@ -50,23 +50,22 @@
 27-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:18:9-41
 28        android:supportsRtl="true"
 28-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:19:9-35
-29        android:testOnly="true"
-30        android:theme="@style/AppTheme" >
-30-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:20:9-40
-31        <activity android:name="com.iris.StayAwake.MainActivity" >
-31-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:21:9-27:20
-31-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:21:19-65
-32            <intent-filter>
-32-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:22:13-26:29
-33                <action android:name="android.intent.action.MAIN" />
-33-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:23:17-69
-33-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:23:25-66
-34
-35                <category android:name="android.intent.category.LAUNCHER" />
-35-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:25:17-77
-35-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:25:27-74
-36            </intent-filter>
-37        </activity>
-38    </application>
-39
-40</manifest>
+29        android:theme="@style/AppTheme" >
+29-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:20:9-40
+30        <activity android:name="com.iris.StayAwake.MainActivity" >
+30-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:21:9-27:20
+30-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:21:19-65
+31            <intent-filter>
+31-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:22:13-26:29
+32                <action android:name="android.intent.action.MAIN" />
+32-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:23:17-69
+32-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:23:25-66
+33
+34                <category android:name="android.intent.category.LAUNCHER" />
+34-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:25:17-77
+34-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:25:27-74
+35            </intent-filter>
+36        </activity>
+37    </application>
+38
+39</manifest>

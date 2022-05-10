@@ -83,13 +83,13 @@ public class MainActivity extends AppCompatActivity {
 
     private Handler mHandler;
 
-    //byte[] auth_char_key = new byte[]{0x2c, (byte) 0xc6, 0x39, (byte) 0xcb, 0x65, 0x3f, (byte) 0x9d, 0x79, 0x6f, (byte) 0xe1, (byte) 0xad, 0x15, 0x1b, (byte) 0xa1, 0x0c, 0x3a};
-    byte[] auth_char_key = new byte[]{0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45};
+    //byte[] mi_band_6_key = new byte[]{0x2c, (byte) 0xc6, 0x39, (byte) 0xcb, 0x65, 0x3f, (byte) 0x9d, 0x79, 0x6f, (byte) 0xe1, (byte) 0xad, 0x15, 0x1b, (byte) 0xa1, 0x0c, 0x3a};
+    byte[] mi_band_3_key = new byte[]{0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45};
     byte[] secret_key;
 
     String name;
     String address;
-    int ignored = 0, stored = 0, group = 0;
+    int ignored = 0, stored = 0, group = 0, zeroCounter = 0;
     //This should be placed on a settings database
     int maxIgnored;
     int maxGroups; //Should be even I guess
@@ -223,9 +223,9 @@ public class MainActivity extends AppCompatActivity {
                 mCursor.moveToNext();
                 maxStored = Integer.parseInt(mCursor.getString(mCursor.getColumnIndexOrThrow((SettingsContract.SettingsEntry.COLUMN_VALUE))));*/
             } else {
-                maxIgnored = 5;
-                maxGroups = 4; //Should be even I guess
-                maxStored = 5; //For testing purposes
+                maxIgnored = 15;
+                maxGroups = 10; //Should be even I guess
+                maxStored = 150; //For testing purposes
 
                 ContentValues cv = new ContentValues();
                 cv.put(SettingsContract.SettingsEntry.COLUMN_VARIABLE, "maxIgnored");
@@ -368,13 +368,15 @@ public class MainActivity extends AppCompatActivity {
             try {
                 secret_key = Arrays.copyOfRange(value, 3, 19);
                 String CIPHER_TYPE = "AES/ECB/NoPadding";
+                // String CIPHER_TYPE = "AES/CBC/PKCS5PADDING";
                 Cipher cipher = Cipher.getInstance(CIPHER_TYPE);
 
                 String CIPHER_NAME = "AES";
-                SecretKeySpec key = new SecretKeySpec(auth_char_key, CIPHER_NAME);
+                SecretKeySpec key = new SecretKeySpec(mi_band_3_key, CIPHER_NAME);
+                //SecretKeySpec key = new SecretKeySpec(mi_band_5_key, CIPHER_NAME);
                 cipher.init(Cipher.ENCRYPT_MODE, key);
                 byte[] bytes = cipher.doFinal(secret_key);
-                byte[] rq = Arrays.copyOf(new byte[]{0x03, 0x08}, 2 + bytes.length);
+                byte[] rq = Arrays.copyOf(new byte[]{0x03, 0x00}, 2 + bytes.length);
                 System.arraycopy(bytes, 0, rq, 2, bytes.length);
 
                 characteristic.setValue(rq);
@@ -457,10 +459,15 @@ public class MainActivity extends AppCompatActivity {
                 group = 0;
                 Pair<Double, Double> trend = calculateTrend();
                 Log.d("CALLBACK", "Calculated trend: " + trend);
-                if (trend.first < 0) startVibrate(); // for example??? Have to adjust it after testing
+                // if (trend.first < 0) startVibrate(); // for example??? Have to adjust it after testing
             }
         } else {
-
+            if (zeroCounter > 3) {
+                wristAlert();
+                zeroCounter = 0;
+            } else {
+                zeroCounter++;
+            }
         }
     }
 
@@ -470,8 +477,12 @@ public class MainActivity extends AppCompatActivity {
         builder.setMessage("Please, make sure you have your band correctly adjusted on your wrist.");
         builder.setPositiveButton("Ok", null);
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        MainActivity.this.runOnUiThread(new Runnable() {
+            public void run() {
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
     }
 
 
@@ -505,6 +516,7 @@ public class MainActivity extends AppCompatActivity {
         int acc = 0;
         int aux = 1;
 
+        //Then calculate every group mean
         for (int i = 0; i < firstGroup.size(); i++) {
             acc += aux;
             aux++;
@@ -531,6 +543,7 @@ public class MainActivity extends AppCompatActivity {
         y2 = acc / secondGroup.size();
         Log.d("TREND", String.valueOf(y2));
 
+        //Calculate trend using a formula
         double m = (double)(y2 - y1) / (t2 - t1);
         double n = (m * t1) + y1;
 
@@ -602,7 +615,7 @@ public class MainActivity extends AppCompatActivity {
                     switch (Arrays.toString(charValue)) {
                         case "[16, 1, 1]": {
                             Log.d("Case 1", "1");
-                            chrt.setValue(new byte[]{0x02, 0x08});
+                            chrt.setValue(new byte[]{0x02, 0x00});
                             gatt.writeCharacteristic(chrt);
                             break;
                         }
@@ -652,8 +665,8 @@ public class MainActivity extends AppCompatActivity {
             BluetoothGattCharacteristic chrt = gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Auth_Characteristic_UUID);
             switch (descriptor.getCharacteristic().getUuid().toString()) {
                 case "00000009-0000-3512-2118-0009af100700":
-                    byte[] rq = Arrays.copyOf(new byte[]{0x01, 0x08}, 2 + auth_char_key.length);
-                    System.arraycopy(auth_char_key, 0, rq, 2, auth_char_key.length);
+                    byte[] rq = Arrays.copyOf(new byte[]{0x01, 0x00}, 2 + mi_band_3_key.length);
+                    System.arraycopy(mi_band_3_key, 0, rq, 2, mi_band_3_key.length);
                     chrt.setValue(rq);
                     gatt.writeCharacteristic(chrt);
                     break;
