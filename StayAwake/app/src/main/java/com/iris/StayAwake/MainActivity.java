@@ -19,6 +19,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
@@ -37,6 +38,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Handler mHandler;
 
-    //byte[] mi_band_6_key = new byte[]{0x2c, (byte) 0xc6, 0x39, (byte) 0xcb, 0x65, 0x3f, (byte) 0x9d, 0x79, 0x6f, (byte) 0xe1, (byte) 0xad, 0x15, 0x1b, (byte) 0xa1, 0x0c, 0x3a};
+    byte[] mi_band_5_key = new byte[]{(byte) 0x80, (byte) 0x91, 0x47, 0x2d, 0x0c, 0x2b, (byte) 0xbc, (byte) 0xd0, 0x14, (byte) 0xd1, 0x63, 0x62, (byte) 0xb0, 0x72, 0x6c, 0x14};
     byte[] mi_band_3_key = new byte[]{0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45};
     byte[] secret_key;
 
@@ -103,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
             mDevicesListView.setVisibility(View.GONE);
             mBTArrayAdapter.clear();
 
-
+            ignored = 0; stored = 0; group = 0; zeroCounter = 0;
             mLayout4.setVisibility(View.VISIBLE);
             mLayout5.setVisibility(View.VISIBLE);
             mLayout6.setVisibility(View.VISIBLE);
@@ -323,7 +326,8 @@ public class MainActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(device.getName())) {
                     mBTArrayAdapter.add(device.getAddress());
                 } else {
-                    mBTArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                    if (device.getName().contains("Band"))
+                        mBTArrayAdapter.add(device.getName() + "\n" + device.getAddress());
                 }
                 mBTArrayAdapter.notifyDataSetChanged();
             }
@@ -366,21 +370,36 @@ public class MainActivity extends AppCompatActivity {
         byte[] value = characteristic.getValue();
         if (value[0] == 16 && value[1] == 2 && value[2] == 1) {
             try {
-                secret_key = Arrays.copyOfRange(value, 3, 19);
-                String CIPHER_TYPE = "AES/ECB/NoPadding";
-                // String CIPHER_TYPE = "AES/CBC/PKCS5PADDING";
-                Cipher cipher = Cipher.getInstance(CIPHER_TYPE);
+                if (name.contains("Mi Band 3") || name.contains("Mi Band 2")) {
+                    secret_key = Arrays.copyOfRange(value, 3, 19);
+                    String CIPHER_TYPE = "AES/ECB/NoPadding";
+                    Cipher cipher = Cipher.getInstance(CIPHER_TYPE);
 
-                String CIPHER_NAME = "AES";
-                SecretKeySpec key = new SecretKeySpec(mi_band_3_key, CIPHER_NAME);
-                //SecretKeySpec key = new SecretKeySpec(mi_band_5_key, CIPHER_NAME);
-                cipher.init(Cipher.ENCRYPT_MODE, key);
-                byte[] bytes = cipher.doFinal(secret_key);
-                byte[] rq = Arrays.copyOf(new byte[]{0x03, 0x00}, 2 + bytes.length);
-                System.arraycopy(bytes, 0, rq, 2, bytes.length);
+                    String CIPHER_NAME = "AES";
+                    SecretKeySpec key = new SecretKeySpec(mi_band_3_key, CIPHER_NAME);
+                    cipher.init(Cipher.ENCRYPT_MODE, key);
+                    byte[] bytes = cipher.doFinal(secret_key);
+                    byte[] rq = Arrays.copyOf(new byte[]{0x03, 0x08}, 2 + bytes.length);
+                    System.arraycopy(bytes, 0, rq, 2, bytes.length);
 
-                characteristic.setValue(rq);
-                gatt.writeCharacteristic(characteristic);
+                    characteristic.setValue(rq);
+                    gatt.writeCharacteristic(characteristic);
+                } else if (name.contains("Mi Smart Band 5") || name.contains("Mi Band 4")) {
+                    secret_key = Arrays.copyOfRange(value, 3, 19);
+                    String CIPHER_TYPE = "AES/ECB/NoPadding";
+                    Cipher cipher = Cipher.getInstance(CIPHER_TYPE);
+
+                    String CIPHER_NAME = "AES";
+                    SecretKeySpec key = new SecretKeySpec(mi_band_5_key, CIPHER_NAME);
+                    cipher.init(Cipher.ENCRYPT_MODE, key);
+                    byte[] bytes = cipher.doFinal(secret_key);
+                    byte[] rq = Arrays.copyOf(new byte[]{0x03, 0x08}, 2 + bytes.length);
+                    System.arraycopy(bytes, 0, rq, 2, bytes.length);
+
+                    characteristic.setValue(rq);
+                    gatt.writeCharacteristic(characteristic);
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -461,8 +480,9 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("CALLBACK", "Calculated trend: " + trend);
                 // if (trend.first < 0) startVibrate(); // for example??? Have to adjust it after testing
             }
+
         } else {
-            if (zeroCounter > 3) {
+            if (zeroCounter > 4) {
                 wristAlert();
                 zeroCounter = 0;
             } else {
@@ -484,8 +504,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
 
     private int meanOfGroup() {
         //Remove the maximum and minimum 25% of the values to prevent anomalies
@@ -516,7 +534,6 @@ public class MainActivity extends AppCompatActivity {
         int acc = 0;
         int aux = 1;
 
-        //Then calculate every group mean
         for (int i = 0; i < firstGroup.size(); i++) {
             acc += aux;
             aux++;
@@ -543,13 +560,13 @@ public class MainActivity extends AppCompatActivity {
         y2 = acc / secondGroup.size();
         Log.d("TREND", String.valueOf(y2));
 
-        //Calculate trend using a formula
         double m = (double)(y2 - y1) / (t2 - t1);
         double n = (m * t1) + y1;
 
         Pair<Double, Double> trend = new Pair<>(m, n);
         return trend;
     }
+
     /**
      * Test playground
      */
@@ -600,8 +617,6 @@ public class MainActivity extends AppCompatActivity {
                         startHrMeasure();
                         break;
                 }
-
-
             }
         }
 
@@ -615,7 +630,7 @@ public class MainActivity extends AppCompatActivity {
                     switch (Arrays.toString(charValue)) {
                         case "[16, 1, 1]": {
                             Log.d("Case 1", "1");
-                            chrt.setValue(new byte[]{0x02, 0x00});
+                            chrt.setValue(new byte[]{0x02, 0x08});
                             gatt.writeCharacteristic(chrt);
                             break;
                         }
@@ -665,10 +680,17 @@ public class MainActivity extends AppCompatActivity {
             BluetoothGattCharacteristic chrt = gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Auth_Characteristic_UUID);
             switch (descriptor.getCharacteristic().getUuid().toString()) {
                 case "00000009-0000-3512-2118-0009af100700":
-                    byte[] rq = Arrays.copyOf(new byte[]{0x01, 0x00}, 2 + mi_band_3_key.length);
-                    System.arraycopy(mi_band_3_key, 0, rq, 2, mi_band_3_key.length);
-                    chrt.setValue(rq);
-                    gatt.writeCharacteristic(chrt);
+                    if (name.contains("Mi Band 3") || name.contains("Mi Band 2")) {
+                        byte[] rq = Arrays.copyOf(new byte[]{0x01, 0x08}, 2 + mi_band_3_key.length);
+                        System.arraycopy(mi_band_3_key, 0, rq, 2, mi_band_3_key.length);
+                        chrt.setValue(rq);
+                        gatt.writeCharacteristic(chrt);
+                    } else if (name.contains("Mi Smart Band 5") || name.contains("Mi Band 4")) {
+                        byte[] rq = Arrays.copyOf(new byte[]{0x01, 0x08}, 2 + mi_band_5_key.length);
+                        System.arraycopy(mi_band_5_key, 0, rq, 2, mi_band_5_key.length);
+                        chrt.setValue(new byte[]{0x02, 0x08});
+                        gatt.writeCharacteristic(chrt);
+                    }
                     break;
 
                 case "00002a37-0000-1000-8000-00805f9b34fb":
