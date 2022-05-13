@@ -1,6 +1,7 @@
 package com.iris.StayAwake;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -33,14 +34,20 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigInteger;
+import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -60,14 +67,16 @@ public class MainActivity extends AppCompatActivity {
 
     // GUI Components
     private TextView mBluetoothStatus, mHeader, mHrValue, mBatteryValue;
+    private EditText mAuthInput;
     private Button mScanBtn;
     private Button mOffBtn;
     private Button mListPairedDevicesBtn;
     private Button mDiscoverBtn;
     private Button mDisconnectBtn;
+    private Button mSubmitBtn;
     private ListView mDevicesListView;
 
-    private LinearLayout mLayout1, mLayout2, mLayout3, mLayout4, mLayout5, mLayout6, mLayout7, mLayout8;
+    private LinearLayout mLayout1, mLayout2, mLayout3, mLayout4, mLayout5, mLayout6, mLayout7, mLayout8, mLayout9, mLayout10;
 
     private BluetoothAdapter mBTAdapter;
     private Set<BluetoothDevice> mPairedDevices;
@@ -86,9 +95,10 @@ public class MainActivity extends AppCompatActivity {
 
     private Handler mHandler;
 
-    byte[] mi_band_5_key = new byte[]{(byte) 0x80, (byte) 0x91, 0x47, 0x2d, 0x0c, 0x2b, (byte) 0xbc, (byte) 0xd0, 0x14, (byte) 0xd1, 0x63, 0x62, (byte) 0xb0, 0x72, 0x6c, 0x14};
+    byte[] mi_band_5_key = new byte[]{(byte) 0xa9, 0x57, 0x68, (byte) 0xd3, (byte) 0xc0, (byte) 0xf1, (byte) 0x83, (byte) 0xb1, (byte) 0xb1, (byte) 0x98, (byte) 0xb1, 0x3a, 0x0d, 0x5e, 0x6e, (byte) 0xa9};
     byte[] mi_band_3_key = new byte[]{0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45};
     byte[] secret_key;
+    byte[] mi_band_key;
 
     String name;
     String address;
@@ -98,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
     int maxGroups; //Should be even I guess
     int maxStored;
 
-    private void display() {
+    private void displayNoAuth() {
         mHandler.post(() -> {
             mLayout1.setVisibility(View.GONE);
             mLayout2.setVisibility(View.GONE);
@@ -114,6 +124,35 @@ public class MainActivity extends AppCompatActivity {
             mLayout8.setVisibility(View.VISIBLE);
             mHrValue.setVisibility(View.VISIBLE);
             mHeader.setText(name);
+        });
+    }
+
+    private void displayAfterAuth() {
+        mHandler.post(() -> {
+            mLayout9.setVisibility(View.GONE);
+            mLayout10.setVisibility(View.GONE);
+
+            ignored = 0; stored = 0; group = 0; zeroCounter = 0;
+            mLayout4.setVisibility(View.VISIBLE);
+            mLayout5.setVisibility(View.VISIBLE);
+            mLayout6.setVisibility(View.VISIBLE);
+            mLayout7.setVisibility(View.VISIBLE);
+            mLayout8.setVisibility(View.VISIBLE);
+            mHrValue.setVisibility(View.VISIBLE);
+            mHeader.setText(name);
+        });
+    }
+
+    private void authRequest() {
+        mHandler.post(() -> {
+            mLayout1.setVisibility(View.GONE);
+            mLayout2.setVisibility(View.GONE);
+            mLayout3.setVisibility(View.GONE);
+            mDevicesListView.setVisibility(View.GONE);
+            mBTArrayAdapter.clear();
+
+            mLayout9.setVisibility(View.VISIBLE);
+            mLayout10.setVisibility(View.VISIBLE);
         });
     }
 
@@ -134,6 +173,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i+1), 16));
+        }
+        return data;
+    }
 
     @Override
     protected void onDestroy() {
@@ -156,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
         mDiscoverBtn = (Button)findViewById(R.id.discover);
         mListPairedDevicesBtn = (Button)findViewById(R.id.paired);
         mDisconnectBtn = (Button)findViewById(R.id.disconnect);
+        mSubmitBtn = (Button)findViewById(R.id.submit);
 
         mLayout1 = (LinearLayout)findViewById(R.id.Layout1);
         mLayout2 = (LinearLayout)findViewById(R.id.Layout2);
@@ -165,6 +214,8 @@ public class MainActivity extends AppCompatActivity {
         mLayout6 = (LinearLayout)findViewById(R.id.Layout6);
         mLayout7 = (LinearLayout)findViewById(R.id.Layout7);
         mLayout8 = (LinearLayout)findViewById(R.id.Layout8);
+        mLayout9 = (LinearLayout)findViewById(R.id.Layout9);
+        mLayout10 = (LinearLayout)findViewById(R.id.Layout10);
 
         mBTArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         mBTAdapter = BluetoothAdapter.getDefaultAdapter(); // get a handle on the bluetooth radio
@@ -182,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
 
         heartRateValues = new ArrayList<>();
         means = new ArrayList<>();
+
         // Ask for location permission if not already allowed
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
@@ -203,6 +255,13 @@ public class MainActivity extends AppCompatActivity {
 
             mDiscoverBtn.setOnClickListener(v -> discover());
 
+            mSubmitBtn.setOnClickListener(v -> {
+                mAuthInput = (EditText) findViewById(R.id.input);
+                String textReceived = mAuthInput.getText().toString();
+                mi_band_key = hexStringToByteArray(textReceived);
+                enableNotifications(mBluetoothGatt, mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Auth_Characteristic_UUID));
+            });
+
             mDisconnectBtn.setOnClickListener(v -> {
                 mBluetoothGatt.disconnect();
                 mHandler.post(() -> mBluetoothStatus.setText("Disconnected"));
@@ -214,6 +273,12 @@ public class MainActivity extends AppCompatActivity {
                 devHelper.clearDatabase(db1);
                 setHelper.clearDatabase(db2); */
 
+
+                try {
+                    BackupDatabase();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 close();
                 back();
             });
@@ -252,6 +317,48 @@ public class MainActivity extends AppCompatActivity {
                 db2.insertOrThrow(SettingsContract.SettingsEntry.TABLE_NAME, null, cv3);
             }
             mCursor.close();
+        }
+    }
+
+    private void BackupDatabase() throws IOException {
+        //Request permissions to write on external storage
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
+
+        boolean success =true;
+        File file = null;
+        file = new File(Environment.getExternalStorageDirectory() +"/DB_Backup");
+
+        if (file.exists())
+        {
+            success =true;
+        }
+        else
+        {
+            success = file.mkdir();
+        }
+
+        if (success)
+        {
+            String inFileName = "/data/data/com.iris.StayAwake/databases/hr.db";
+            File dbFile = new File(inFileName);
+            FileInputStream fis = new FileInputStream(dbFile);
+
+            String outFileName = Environment.getExternalStorageDirectory()+"/DB_Backup/hr_backup.db";
+
+            // Open the empty db as the output stream
+            OutputStream output = new FileOutputStream(outFileName);
+
+            // Transfer bytes from the input file to the output file
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = fis.read(buffer))>0) {
+                output.write(buffer, 0, length);
+            }
+
+            output.flush();
+            output.close();
+            fis.close();
         }
     }
 
@@ -385,15 +492,12 @@ public class MainActivity extends AppCompatActivity {
                     characteristic.setValue(rq);
                     gatt.writeCharacteristic(characteristic);
                 } else if (name.contains("Mi Smart Band 5") || name.contains("Mi Band 4")) {
-                    secret_key = Arrays.copyOfRange(value, 3, 19);
-                    String CIPHER_TYPE = "AES/ECB/NoPadding";
-                    Cipher cipher = Cipher.getInstance(CIPHER_TYPE);
-
-                    String CIPHER_NAME = "AES";
-                    SecretKeySpec key = new SecretKeySpec(mi_band_5_key, CIPHER_NAME);
-                    cipher.init(Cipher.ENCRYPT_MODE, key);
-                    byte[] bytes = cipher.doFinal(secret_key);
-                    byte[] rq = Arrays.copyOf(new byte[]{0x03, 0x08}, 2 + bytes.length);
+                    byte[] mValue = Arrays.copyOfRange(value, 3, 19);
+                    @SuppressLint("GetInstance") Cipher eCipher = Cipher.getInstance("AES/ECB/NoPadding");
+                    SecretKeySpec newKey = new SecretKeySpec(mi_band_key, "AES");
+                    eCipher.init(Cipher.ENCRYPT_MODE, newKey);
+                    byte[] bytes = eCipher.doFinal(mValue);
+                    byte[] rq = Arrays.copyOf(new byte[]{0x03, 0x00}, 2 + bytes.length);
                     System.arraycopy(bytes, 0, rq, 2, bytes.length);
 
                     characteristic.setValue(rq);
@@ -577,7 +681,7 @@ public class MainActivity extends AppCompatActivity {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 //bluetooth is connected so discover services
-                mHandler.post(() -> mBluetoothStatus.setText("Connected"));
+                mHandler.post(() -> mBluetoothStatus.setText("Authenticating..."));
 
                 ContentValues cv = new ContentValues();
                 cv.put(DeviceContract.DeviceEntry.COLUMN_ADDRESS, address);
@@ -600,7 +704,12 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("Services", "Found Characteristic " + mCharacteristic.getUuid().toString());
                     }
                 }
-                enableNotifications(gatt, mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Auth_Characteristic_UUID));
+
+                if (name.contains("Mi Band 3") || name.contains("Mi Band 2")) {
+                    enableNotifications(gatt, mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Auth_Characteristic_UUID));
+                } else if (name.contains("Mi Smart Band 5") || name.contains("Mi Band 4")) {
+                    authRequest();
+                }
             }
         }
 
@@ -640,12 +749,17 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         }
                         case "[16, 3, 1]": {
-                            Log.d("AUTH", "Success");
-                            display();
+                            mHandler.post(() -> mBluetoothStatus.setText("Connected"));
+                            if (name.contains("Mi Band 3") || name.contains("Mi Band 2")) {
+                                displayNoAuth();
+                            } else if (name.contains("Mi Smart Band 5") || name.contains("Mi Band 4")) {
+                                displayAfterAuth();
+                            }
                             getBattery();
                             break;
                         }
                         default:
+                            mHandler.post(() -> mBluetoothStatus.setText("Authentication failed"));
                             Log.d("SAD", "Not found " + Arrays.toString(charValue));
                             break;
                     }
@@ -685,10 +799,8 @@ public class MainActivity extends AppCompatActivity {
                         System.arraycopy(mi_band_3_key, 0, rq, 2, mi_band_3_key.length);
                         chrt.setValue(rq);
                         gatt.writeCharacteristic(chrt);
-                    } else if (name.contains("Mi Smart Band 5") || name.contains("Mi Band 4")) {
-                        byte[] rq = Arrays.copyOf(new byte[]{0x01, 0x08}, 2 + mi_band_5_key.length);
-                        System.arraycopy(mi_band_5_key, 0, rq, 2, mi_band_5_key.length);
-                        chrt.setValue(new byte[]{0x02, 0x08});
+                    } else if (name.contains("Mi Smart Band 5") || name.contains("Mi Band 4") || name.contains("Mi Band 6")) {
+                        chrt.setValue(new byte[]{0x02, 0x00});
                         gatt.writeCharacteristic(chrt);
                     }
                     break;
@@ -743,6 +855,7 @@ public class MainActivity extends AppCompatActivity {
         if (mBluetoothGatt == null) {
             return;
         }
+        unregisterReceiver(blReceiver);
         mBluetoothGatt.close();
         mBluetoothGatt = null;
     }

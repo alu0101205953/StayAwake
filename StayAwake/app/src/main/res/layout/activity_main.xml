@@ -122,6 +122,47 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/Layout9"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="200dp"
+        android:gravity="center">
+
+        <EditText
+            android:id="@+id/input"
+            android:layout_height="wrap_content"
+            android:layout_width="360dp"
+
+            android:maxLines="1"
+            android:maxLength="32"
+            android:hint="Band Auth Key (without 0x)">
+        </EditText>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/Layout10"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/input"
+            android:layout_centerHorizontal="true"
+            android:text="Submit"
+            android:backgroundTint="#75909c"
+            android:layout_margin="20dp"
+            android:textColor="#FFFFFF"/>
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/Layout3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

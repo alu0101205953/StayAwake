@@ -8,12 +8,12 @@
         "source": "/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/build/intermediates/res/merged/debug/mipmap-xxhdpi_ic_launcher_round.webp.flat",
-        "source": "/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp"
-    },
-    {
         "merged": "/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/build/intermediates/res/merged/debug/mipmap-anydpi-v26_logo.xml.flat",
         "source": "/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/res/mipmap-anydpi-v26/logo.xml"
+    },
+    {
+        "merged": "/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/build/intermediates/res/merged/debug/mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp"
     },
     {
         "merged": "/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/build/intermediates/res/merged/debug/mipmap-anydpi-v26_ic_launcher_round.xml.flat",

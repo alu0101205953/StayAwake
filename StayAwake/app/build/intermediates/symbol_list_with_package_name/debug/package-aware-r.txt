@@ -452,6 +452,7 @@ drawable abc_textfield_search_material
 drawable notification_template_icon_bg
 id Hr_txt
 id Layout1
+id Layout10
 id Layout2
 id Layout3
 id Layout4
@@ -459,6 +460,7 @@ id Layout5
 id Layout6
 id Layout7
 id Layout8
+id Layout9
 id action0
 id action_bar
 id action_bar_activity_content
@@ -510,6 +512,7 @@ id icon
 id ifRoom
 id image
 id info
+id input
 id line1
 id line3
 id listMode
@@ -552,6 +555,7 @@ id src_atop
 id src_in
 id src_over
 id status_bar_latest_event_content
+id submit
 id submit_area
 id tabMode
 id text
