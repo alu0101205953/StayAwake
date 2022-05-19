@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public class BluetoothGatt {
 
-    public static class MiBand3 {
+    public static class MiBand {
         //Services
         public static UUID MiBand_Service_UUID = UUID.fromString("0000fee1-0000-1000-8000-00805f9b34fb");
         public static UUID MiBand1_Service_UUID = UUID.fromString("0000fee0-0000-1000-8000-00805f9b34fb");
@@ -17,6 +17,7 @@ public class BluetoothGatt {
         public static UUID Battery_Level_UUID = UUID.fromString("00000006-0000-3512-2118-0009af100700");
         public static UUID Measurement_Characteristic_UUID = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb");
         public static UUID Sensor_Characteristic_UUID = UUID.fromString("00000001-0000-3512-2118-0009af100700");
+        public static UUID Sensor_Measure_Characteristic_UUID = UUID.fromString("00000002-0000-3512-2118-0009af100700");
         public static UUID Control_Characteristic_UUID = UUID.fromString("00002a39-0000-1000-8000-00805f9b34fb");
 
         //Descriptor

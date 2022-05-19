@@ -46,8 +46,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
-import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -259,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
                 mAuthInput = (EditText) findViewById(R.id.input);
                 String textReceived = mAuthInput.getText().toString();
                 mi_band_key = hexStringToByteArray(textReceived);
-                enableNotifications(mBluetoothGatt, mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Auth_Characteristic_UUID));
+                enableNotifications(mBluetoothGatt, mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Auth_Characteristic_UUID));
             });
 
             mDisconnectBtn.setOnClickListener(v -> {
@@ -460,7 +458,7 @@ public class MainActivity extends AppCompatActivity {
      */
 
     private void getBattery() {
-        BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Battery_Level_UUID);
+        BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Battery_Level_UUID);
         if (characteristic != null) {
             mBluetoothGatt.readCharacteristic(characteristic);
         }
@@ -468,7 +466,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void enableNotifications(BluetoothGatt gatt, BluetoothGattCharacteristic chrt) {
         gatt.setCharacteristicNotification(chrt, true);
-        BluetoothGattDescriptor descriptor = chrt.getDescriptor(com.iris.StayAwake.BluetoothGatt.MiBand3.Descriptor_UUID);
+        BluetoothGattDescriptor descriptor = chrt.getDescriptor(com.iris.StayAwake.BluetoothGatt.MiBand.Descriptor_UUID);
         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
         gatt.writeDescriptor(descriptor);
     }
@@ -511,8 +509,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startHrMeasure() {
-        BluetoothGattCharacteristic hmc = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Control_Characteristic_UUID);
-        BluetoothGattCharacteristic sensorChar = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Sensor_Characteristic_UUID);
+        BluetoothGattCharacteristic hmc = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Control_Characteristic_UUID);
+        BluetoothGattCharacteristic sensorChar = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Sensor_Characteristic_UUID);
         sensorChar.setValue(new byte[] {0x01, 0x03, 0x19});
         mBluetoothGatt.writeCharacteristic(sensorChar);
 
@@ -524,21 +522,47 @@ public class MainActivity extends AppCompatActivity {
         ping.start();
     }
 
+    /*private void startPositionMeasure() {
+        BluetoothGattCharacteristic sensorChar = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Sensor_Characteristic_UUID);
+        BluetoothGattCharacteristic sensorMeasureChar = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Sensor_Measure_Characteristic_UUID);
+
+        sensorChar.setValue(new byte[] {0x01, 0x03, 0x19});
+        mBluetoothGatt.writeCharacteristic(sensorChar);
+
+        sensorChar.setValue(new byte[] {0x02});
+        mBluetoothGatt.writeCharacteristic(sensorChar);
+
+        enableNotifications(mBluetoothGatt, sensorMeasureChar);
+
+        ping = new Timer(60000, () -> { //ping every sixty seconds
+            sensorChar.setValue(new byte[] {0x01, 0x01, 0x19});
+            mBluetoothGatt.writeCharacteristic(sensorChar);
+
+            sensorChar.setValue(new byte[] {0x02});
+            mBluetoothGatt.writeCharacteristic(sensorChar);
+        });
+        ping.start();
+    }*/
+
     private void stopHrMeasure() {
-        BluetoothGattCharacteristic hmc = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Control_Characteristic_UUID);
+        BluetoothGattCharacteristic hmc = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Control_Characteristic_UUID);
         hmc.setValue(new byte[] {0x15, 0x01, 0x00});
         mBluetoothGatt.writeCharacteristic(hmc);
     }
 
     private void startVibrate() {
-        BluetoothGattCharacteristic chr = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.Alert_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Alert_Characteristic_UUID);
-        chr.setValue(new byte[] {2});
+        BluetoothGattCharacteristic chr = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.Alert_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Alert_Characteristic_UUID);
+        if (name.contains("Mi Band 3") || name.contains("Mi Band 2")) {
+            chr.setValue(new byte[] {0x02, 0x01});
+        } else if (name.contains("Mi Smart Band 5") || name.contains("Mi Band 4")) {
+            chr.setValue(new byte[] {0x03, 0x01});
+        }
         mBluetoothGatt.writeCharacteristic(chr);
     }
 
     private void stopVibrate() {
-        BluetoothGattCharacteristic chr = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.Alert_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Alert_Characteristic_UUID);
-        chr.setValue(new byte[] {0});
+        BluetoothGattCharacteristic chr = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.Alert_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Alert_Characteristic_UUID);
+        chr.setValue(new byte[] {0x00});
         mBluetoothGatt.writeCharacteristic(chr);
     }
 
@@ -706,7 +730,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (name.contains("Mi Band 3") || name.contains("Mi Band 2")) {
-                    enableNotifications(gatt, mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Auth_Characteristic_UUID));
+                    enableNotifications(gatt, mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Auth_Characteristic_UUID));
                 } else if (name.contains("Mi Smart Band 5") || name.contains("Mi Band 4")) {
                     authRequest();
                 }
@@ -721,9 +745,9 @@ public class MainActivity extends AppCompatActivity {
                         byte[] data = characteristic.getValue();
                         final int value = new BigInteger(String.valueOf(data[1])).intValue();
 
-                        Log.d("Bat", "battery level: " + value + "%");
                         mHandler.post(() -> mBatteryValue.setText(value + " %"));
                         startHrMeasure();
+                        //startPositionMeasure();
                         break;
                 }
             }
@@ -731,7 +755,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            BluetoothGattCharacteristic chrt = gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Auth_Characteristic_UUID);
+            BluetoothGattCharacteristic chrt = gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Auth_Characteristic_UUID);
             Log.d("BLE", "Received characteristics changed event : " + characteristic.getUuid());
             byte[] charValue = Arrays.copyOfRange(characteristic.getValue(), 0, 3);
             switch (characteristic.getUuid().toString()) {
@@ -769,6 +793,7 @@ public class MainActivity extends AppCompatActivity {
                     byte currentHrValue = characteristic.getValue()[1];
                     HRCallback(currentHrValue);
                     break;
+
             }
         }
 
@@ -779,7 +804,7 @@ public class MainActivity extends AppCompatActivity {
                 case "00000001-0000-3512-2118-0009af100700": {
                     switch (Arrays.toString(characteristic.getValue())) {
                         case "[1, 3, 25]": {
-                            enableNotifications(gatt, gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Measurement_Characteristic_UUID));
+                            enableNotifications(gatt, gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Measurement_Characteristic_UUID));
                             break;
                         }
                     }
@@ -791,7 +816,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             Log.d("DESC", "Desc write");
-            BluetoothGattCharacteristic chrt = gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Auth_Characteristic_UUID);
+            BluetoothGattCharacteristic chrt = gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Auth_Characteristic_UUID);
             switch (descriptor.getCharacteristic().getUuid().toString()) {
                 case "00000009-0000-3512-2118-0009af100700":
                     if (name.contains("Mi Band 3") || name.contains("Mi Band 2")) {
@@ -808,14 +833,13 @@ public class MainActivity extends AppCompatActivity {
                 case "00002a37-0000-1000-8000-00805f9b34fb":
                     switch (Arrays.toString(descriptor.getValue())) {
                         case "[1, 0]":
-                            BluetoothGattCharacteristic hmc = gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Control_Characteristic_UUID);
+                            BluetoothGattCharacteristic hmc = gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Control_Characteristic_UUID);
                             hmc.setValue(new byte[] {0x15, 0x01, 0x01});
                             Log.d("INFO", "HMC " + gatt.writeCharacteristic(hmc));
                             break;
                         default:
                             Log.d("INFO", "onDescriptorWrite UUID: " + descriptor.getUuid().toString() + " value: " + Arrays.toString(descriptor.getValue()));
                     }
-                    break;
             }
         }
     };
