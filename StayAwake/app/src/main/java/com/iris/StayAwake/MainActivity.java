@@ -13,11 +13,13 @@ import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -42,10 +44,13 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -93,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Handler mHandler;
 
-    byte[] mi_band_5_key = new byte[]{(byte) 0xa9, 0x57, 0x68, (byte) 0xd3, (byte) 0xc0, (byte) 0xf1, (byte) 0x83, (byte) 0xb1, (byte) 0xb1, (byte) 0x98, (byte) 0xb1, 0x3a, 0x0d, 0x5e, 0x6e, (byte) 0xa9};
     byte[] mi_band_3_key = new byte[]{0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45};
     byte[] secret_key;
     byte[] mi_band_key;
@@ -102,9 +106,9 @@ public class MainActivity extends AppCompatActivity {
     String address;
     int ignored = 0, stored = 0, group = 0, zeroCounter = 0;
     //This should be placed on a settings database
-    int maxIgnored;
-    int maxGroups; //Should be even I guess
-    int maxStored;
+    int maxIgnored = 15;
+    int maxGroups = 10; //Should be even I guess
+    int maxStored = 150;
 
     private void displayNoAuth() {
         mHandler.post(() -> {
@@ -114,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
             mDevicesListView.setVisibility(View.GONE);
             mBTArrayAdapter.clear();
 
-            ignored = 0; stored = 0; group = 0; zeroCounter = 0;
+            zeroCounter = 0;
             mLayout4.setVisibility(View.VISIBLE);
             mLayout5.setVisibility(View.VISIBLE);
             mLayout6.setVisibility(View.VISIBLE);
@@ -219,6 +223,7 @@ public class MainActivity extends AppCompatActivity {
         mBTAdapter = BluetoothAdapter.getDefaultAdapter(); // get a handle on the bluetooth radio
 
         mDevicesListView = (ListView)findViewById(R.id.devices_list_view);
+        assert mDevicesListView != null;
         mDevicesListView.setAdapter(mBTArrayAdapter); // assign model to view
         mDevicesListView.setOnItemClickListener(mDeviceClickListener);
         dbHelper = new HRDBHelper(this);
@@ -255,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
 
             mSubmitBtn.setOnClickListener(v -> {
                 mAuthInput = (EditText) findViewById(R.id.input);
+                assert mAuthInput != null;
                 String textReceived = mAuthInput.getText().toString();
                 mi_band_key = hexStringToByteArray(textReceived);
                 enableNotifications(mBluetoothGatt, mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Auth_Characteristic_UUID));
@@ -314,6 +320,7 @@ public class MainActivity extends AppCompatActivity {
 
                 db2.insertOrThrow(SettingsContract.SettingsEntry.TABLE_NAME, null, cv3);
             }
+            assert mCursor != null;
             mCursor.close();
         }
     }
@@ -323,26 +330,22 @@ public class MainActivity extends AppCompatActivity {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
 
-        boolean success =true;
-        File file = null;
-        file = new File(Environment.getExternalStorageDirectory() +"/DB_Backup");
+        /* boolean success;
+        File file;
+        file = new File(this.getApplicationContext().getExternalFilesDir(null).getAbsolutePath() + "/DB_Backup");
 
-        if (file.exists())
-        {
-            success =true;
+        if (file.exists()) {
+            success = true;
         }
-        else
-        {
+        else {
             success = file.mkdir();
         }
 
-        if (success)
-        {
-            String inFileName = "/data/data/com.iris.StayAwake/databases/hr.db";
-            File dbFile = new File(inFileName);
+        if (success) {
+            @SuppressLint("SdCardPath") File dbFile = new File("/data/data/com.iris.StayAwake/databases/hr.db");
             FileInputStream fis = new FileInputStream(dbFile);
-
-            String outFileName = Environment.getExternalStorageDirectory()+"/DB_Backup/hr_backup.db";
+            @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+            String outFileName = this.getApplicationContext().getExternalFilesDir(null).getAbsolutePath() + "/DB_Backup/hr_backup" + timeStamp + ".db";
 
             // Open the empty db as the output stream
             OutputStream output = new FileOutputStream(outFileName);
@@ -357,10 +360,44 @@ public class MainActivity extends AppCompatActivity {
             output.flush();
             output.close();
             fis.close();
+        } */
+
+        File src = new File("/data/data/com.iris.StayAwake/databases/hr.db");
+        File dst = new File(Environment.getExternalStorageDirectory() + File.separator + "DB_Backup" + File.separator);
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+        String outFileName = "hr_backup" + timeStamp + ".db";
+
+        if (!dst.exists()) {
+            if (!dst.mkdir()) {
+                Toast.makeText(getApplicationContext(),"Can't create directory",Toast.LENGTH_SHORT).show();
+            }
         }
+
+        File expFile = new File(dst.getPath() + File.separator + outFileName);
+        FileChannel inChannel = null;
+        FileChannel outChannel = null;
+
+        try {
+            inChannel = new FileInputStream(src).getChannel();
+            outChannel = new FileOutputStream(expFile).getChannel();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            inChannel.transferTo(0, inChannel.size(), outChannel);
+        } finally {
+            if (inChannel != null)
+                inChannel.close();
+            if (outChannel != null)
+                outChannel.close();
+        }
+
+        Toast.makeText(getApplicationContext(),"Backup file created", Toast.LENGTH_SHORT).show();
+
     }
 
-    private void bluetoothOn(){
+    private void bluetoothOn() {
         if (!mBTAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
@@ -375,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Enter here after user selects "yes" or "no" to enabling radio
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent Data){
+    protected void onActivityResult(int requestCode, int resultCode, Intent Data) {
         // Check which request we're responding to
         if (requestCode == REQUEST_ENABLE_BT) {
             // Make sure the request was successful
@@ -387,27 +424,50 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void bluetoothOff(){
+    private void bluetoothOff() {
         mBTAdapter.disable(); // turn off
         mBluetoothStatus.setText("Bluetooth disabled");
         Toast.makeText(getApplicationContext(),"Bluetooth turned Off", Toast.LENGTH_SHORT).show();
     }
 
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Your location seems to be disabled, do you want to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
 
-    private void discover(){
+    private void discover() {
+        final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps();
+        }
+
         // Check if the device is already discovering
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        /* AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Location");
-        builder.setMessage("Please, make sure you have location enabled before discovering.");
+        builder.setMessage("Please, make sure you have location manually enabled before discovering.");
         builder.setPositiveButton("Ok", null);
 
         AlertDialog dialog = builder.create();
-        dialog.show();
-        if(mBTAdapter.isDiscovering()){
+        dialog.show();*/
+        if (mBTAdapter.isDiscovering()) {
             mBTAdapter.cancelDiscovery();
             Toast.makeText(getApplicationContext(),"Discovery stopped",Toast.LENGTH_SHORT).show();
         }
-        else{
+        else {
             if(mBTAdapter.isEnabled()) {
                 mBTArrayAdapter.clear(); // clear items
                 mBTAdapter.startDiscovery();
@@ -415,7 +475,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Discovery started", Toast.LENGTH_SHORT).show();
                 registerReceiver(blReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
             }
-            else{
+            else {
                 Toast.makeText(getApplicationContext(), "Bluetooth not on", Toast.LENGTH_SHORT).show();
             }
         }
@@ -440,7 +500,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
-    private void listPairedDevices(){
+    private void listPairedDevices() {
         mBTArrayAdapter.clear();
         mPairedDevices = mBTAdapter.getBondedDevices();
         if(mBTAdapter.isEnabled()) {
@@ -454,7 +514,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * Test playground
+     * Test sandbox
      */
 
     private void getBattery() {
@@ -509,6 +569,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startHrMeasure() {
+        ignored = 0;
+        group = 0;
+        stored = 0;
         BluetoothGattCharacteristic hmc = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Control_Characteristic_UUID);
         BluetoothGattCharacteristic sensorChar = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Sensor_Characteristic_UUID);
         sensorChar.setValue(new byte[] {0x01, 0x03, 0x19});
@@ -522,27 +585,23 @@ public class MainActivity extends AppCompatActivity {
         ping.start();
     }
 
-    /*private void startPositionMeasure() {
-        BluetoothGattCharacteristic sensorChar = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Sensor_Characteristic_UUID);
-        BluetoothGattCharacteristic sensorMeasureChar = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand3.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand3.Sensor_Measure_Characteristic_UUID);
+    /* private void startPositionMeasure() {
+        BluetoothGattCharacteristic sensorChar = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Sensor_Characteristic_UUID);
 
-        sensorChar.setValue(new byte[] {0x01, 0x03, 0x19});
+        sensorChar.setValue(new byte[] {0x01, 0x01, 0x19});
+        if(mBluetoothGatt.writeCharacteristic(sensorChar)) {
+
+        } else {
+            Log.d("TAG", "Failed to write on step 1");
+        }
+    } */
+
+    private void stopPositionMeasure() {
+        BluetoothGattCharacteristic sensorChar = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Sensor_Characteristic_UUID);
+        sensorChar.setValue(new byte[] {0x03});
         mBluetoothGatt.writeCharacteristic(sensorChar);
 
-        sensorChar.setValue(new byte[] {0x02});
-        mBluetoothGatt.writeCharacteristic(sensorChar);
-
-        enableNotifications(mBluetoothGatt, sensorMeasureChar);
-
-        ping = new Timer(60000, () -> { //ping every sixty seconds
-            sensorChar.setValue(new byte[] {0x01, 0x01, 0x19});
-            mBluetoothGatt.writeCharacteristic(sensorChar);
-
-            sensorChar.setValue(new byte[] {0x02});
-            mBluetoothGatt.writeCharacteristic(sensorChar);
-        });
-        ping.start();
-    }*/
+    }
 
     private void stopHrMeasure() {
         BluetoothGattCharacteristic hmc = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Control_Characteristic_UUID);
@@ -588,9 +647,10 @@ public class MainActivity extends AppCompatActivity {
             // Ignore first measurements in order to stabilize sensor
             if (ignored < maxIgnored) {
                 ignored++;
+                mHandler.post(() -> mHrValue.setText(heartRateValue));
                 Log.d("CALLBACK", "Ignored");
             } else if (stored <= maxStored){ //Learning process
-                heartRateValues.add(Integer.valueOf(currentHrValue));
+                heartRateValues.add((int) currentHrValue);
                 stored++;
                 Log.d("CALLBACK", "Stored");
                 Calendar cal = Calendar.getInstance();
@@ -625,11 +685,9 @@ public class MainActivity extends AppCompatActivity {
         builder.setMessage("Please, make sure you have your band correctly adjusted on your wrist.");
         builder.setPositiveButton("Ok", null);
 
-        MainActivity.this.runOnUiThread(new Runnable() {
-            public void run() {
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
+        MainActivity.this.runOnUiThread(() -> {
+            AlertDialog dialog = builder.create();
+            dialog.show();
         });
     }
 
@@ -691,12 +749,11 @@ public class MainActivity extends AppCompatActivity {
         double m = (double)(y2 - y1) / (t2 - t1);
         double n = (m * t1) + y1;
 
-        Pair<Double, Double> trend = new Pair<>(m, n);
-        return trend;
+        return new Pair<>(m, n);
     }
 
     /**
-     * Test playground
+     * Test sandbox
      */
 
 
@@ -723,8 +780,7 @@ public class MainActivity extends AppCompatActivity {
                 for (BluetoothGattService service : gatt.getServices()) {
                     Log.d("Services", "Found Service " + service.getUuid().toString());
 
-                    for(BluetoothGattCharacteristic mCharacteristic: service.getCharacteristics())
-                    {
+                    for (BluetoothGattCharacteristic mCharacteristic : service.getCharacteristics()) {
                         Log.d("Services", "Found Characteristic " + mCharacteristic.getUuid().toString());
                     }
                 }
@@ -793,22 +849,46 @@ public class MainActivity extends AppCompatActivity {
                     byte currentHrValue = characteristic.getValue()[1];
                     HRCallback(currentHrValue);
                     break;
+                /*case "00000002-0000-3512-2118-0009af100700":
+                    System.out.println(Arrays.toString(characteristic.getValue()));
+                    if(characteristic.getValue()[0] == (byte) 0x01) {
 
+                    }
+                    break;*/
             }
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            BluetoothGattCharacteristic sensorChar = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Sensor_Characteristic_UUID);
+            BluetoothGattCharacteristic sensorMeasureChar = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Sensor_Measure_Characteristic_UUID);
+
             super.onCharacteristicWrite(gatt, characteristic, status);
-            switch (characteristic.getUuid().toString()) {
-                case "00000001-0000-3512-2118-0009af100700": {
-                    switch (Arrays.toString(characteristic.getValue())) {
-                        case "[1, 3, 25]": {
-                            enableNotifications(gatt, gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Measurement_Characteristic_UUID));
-                            break;
-                        }
+            if ("00000001-0000-3512-2118-0009af100700".equals(characteristic.getUuid().toString())) {
+                switch (Arrays.toString(characteristic.getValue())) {
+                    case "[1, 3, 25]": {
+                        enableNotifications(gatt, gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Measurement_Characteristic_UUID));
+                        break;
                     }
-                    break;
+                    /* case "[1, 1, 25]":
+                        sensorChar.setValue(new byte[]{0x02});
+                        if (mBluetoothGatt.writeCharacteristic(sensorChar))
+
+                            break;
+                    case "[2]":
+                        enableNotifications(mBluetoothGatt, sensorMeasureChar);
+                        ping = new Timer(60000, () -> { //ping every sixty seconds
+                            sensorChar.setValue(new byte[]{0x01, 0x01, 0x19});
+                            mBluetoothGatt.writeCharacteristic(sensorChar);
+
+                            sensorChar.setValue(new byte[]{0x02});
+                            mBluetoothGatt.writeCharacteristic(sensorChar);
+                        });
+                        ping.start();
+                        break; */
+
+                    default:
+                        Log.d("TAG", Arrays.toString(characteristic.getValue()));
                 }
             }
         }
@@ -831,20 +911,18 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case "00002a37-0000-1000-8000-00805f9b34fb":
-                    switch (Arrays.toString(descriptor.getValue())) {
-                        case "[1, 0]":
-                            BluetoothGattCharacteristic hmc = gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Control_Characteristic_UUID);
-                            hmc.setValue(new byte[] {0x15, 0x01, 0x01});
-                            Log.d("INFO", "HMC " + gatt.writeCharacteristic(hmc));
-                            break;
-                        default:
-                            Log.d("INFO", "onDescriptorWrite UUID: " + descriptor.getUuid().toString() + " value: " + Arrays.toString(descriptor.getValue()));
+                    if ("[1, 0]".equals(Arrays.toString(descriptor.getValue()))) {
+                        BluetoothGattCharacteristic hmc = gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Control_Characteristic_UUID);
+                        hmc.setValue(new byte[]{0x15, 0x01, 0x01});
+                        Log.d("INFO", "HMC " + gatt.writeCharacteristic(hmc));
+                    } else {
+                        Log.d("INFO", "onDescriptorWrite UUID: " + descriptor.getUuid().toString() + " value: " + Arrays.toString(descriptor.getValue()));
                     }
             }
         }
     };
 
-    private AdapterView.OnItemClickListener mDeviceClickListener = new AdapterView.OnItemClickListener() {
+    private final AdapterView.OnItemClickListener mDeviceClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
