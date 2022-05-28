@@ -1,4 +1,4 @@
-#Tue May 24 09:20:04 WEST 2022
+#Thu May 26 09:42:31 WEST 2022
 base.0=/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/build/intermediates/dex/debug/out/classes.dex
 renamed.0=classes.dex
 path.0=classes.dex

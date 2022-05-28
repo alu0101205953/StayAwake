@@ -44,10 +44,8 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
@@ -326,42 +324,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void BackupDatabase() throws IOException {
-        //Request permissions to write on external storage
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
-
-        /* boolean success;
-        File file;
-        file = new File(this.getApplicationContext().getExternalFilesDir(null).getAbsolutePath() + "/DB_Backup");
-
-        if (file.exists()) {
-            success = true;
-        }
-        else {
-            success = file.mkdir();
-        }
-
-        if (success) {
-            @SuppressLint("SdCardPath") File dbFile = new File("/data/data/com.iris.StayAwake/databases/hr.db");
-            FileInputStream fis = new FileInputStream(dbFile);
-            @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
-            String outFileName = this.getApplicationContext().getExternalFilesDir(null).getAbsolutePath() + "/DB_Backup/hr_backup" + timeStamp + ".db";
-
-            // Open the empty db as the output stream
-            OutputStream output = new FileOutputStream(outFileName);
-
-            // Transfer bytes from the input file to the output file
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = fis.read(buffer))>0) {
-                output.write(buffer, 0, length);
-            }
-
-            output.flush();
-            output.close();
-            fis.close();
-        } */
-
         File src = new File("/data/data/com.iris.StayAwake/databases/hr.db");
         File dst = new File(Environment.getExternalStorageDirectory() + File.separator + "DB_Backup" + File.separator);
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
@@ -373,28 +335,17 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        File expFile = new File(dst.getPath() + File.separator + outFileName);
-        FileChannel inChannel = null;
-        FileChannel outChannel = null;
-
-        try {
-            inChannel = new FileInputStream(src).getChannel();
-            outChannel = new FileOutputStream(expFile).getChannel();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            inChannel.transferTo(0, inChannel.size(), outChannel);
-        } finally {
-            if (inChannel != null)
-                inChannel.close();
-            if (outChannel != null)
-                outChannel.close();
-        }
+        FileInputStream inStream = new FileInputStream(src);
+        FileOutputStream outStream = new FileOutputStream(dst.getPath() + File.separator + outFileName);
+        FileChannel inChannel = inStream.getChannel();
+        FileChannel outChannel = outStream.getChannel();
+        inChannel.transferTo(0, inChannel.size(), outChannel);
+        inStream.close();
+        outStream.close();
+        inChannel.close();
+        outChannel.close();
 
         Toast.makeText(getApplicationContext(),"Backup file created", Toast.LENGTH_SHORT).show();
-
     }
 
     private void bluetoothOn() {
@@ -456,23 +407,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Check if the device is already discovering
-        /* AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Location");
-        builder.setMessage("Please, make sure you have location manually enabled before discovering.");
-        builder.setPositiveButton("Ok", null);
-
-        AlertDialog dialog = builder.create();
-        dialog.show();*/
         if (mBTAdapter.isDiscovering()) {
             mBTAdapter.cancelDiscovery();
             Toast.makeText(getApplicationContext(),"Discovery stopped",Toast.LENGTH_SHORT).show();
         }
         else {
-            if(mBTAdapter.isEnabled()) {
+            if (mBTAdapter.isEnabled() && !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                mHandler.post(() -> mBluetoothStatus.setText("Location off, can't discover"));
+            } else if (mBTAdapter.isEnabled() && manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 mBTArrayAdapter.clear(); // clear items
                 mBTAdapter.startDiscovery();
-                mHandler.post(() -> mBluetoothStatus.setText("Discovering..."));
                 Toast.makeText(getApplicationContext(), "Discovery started", Toast.LENGTH_SHORT).show();
+                mHandler.post(() -> mBluetoothStatus.setText("Discovering..."));
                 registerReceiver(blReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
             }
             else {
@@ -489,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 // add the name to the list
                 if (TextUtils.isEmpty(device.getName())) {
-                    mBTArrayAdapter.add(device.getAddress());
+                    //mBTArrayAdapter.add(device.getAddress());
                 } else {
                     if (device.getName().contains("Band"))
                         mBTArrayAdapter.add(device.getName() + "\n" + device.getAddress());
@@ -769,6 +715,9 @@ public class MainActivity extends AppCompatActivity {
                 cv.put(DeviceContract.DeviceEntry.COLUMN_NAME, name);
 
                 db1.replaceOrThrow(DeviceContract.DeviceEntry.TABLE_NAME, null, cv);
+                //Request permissions to write on external storage
+                if(ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
 
                 gatt.discoverServices();
             }
@@ -786,7 +735,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (name.contains("Mi Band 3") || name.contains("Mi Band 2")) {
-                    enableNotifications(gatt, mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Auth_Characteristic_UUID));
+                    enableNotifications(gatt, gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Auth_Characteristic_UUID));
                 } else if (name.contains("Mi Smart Band 5") || name.contains("Mi Band 4")) {
                     authRequest();
                 }
