@@ -20,8 +20,14 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
+import android.media.AudioManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.media.ToneGenerator;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -53,6 +59,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.Locale;
+import java.util.Queue;
 import java.util.Set;
 
 import javax.crypto.Cipher;
@@ -84,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> mBTArrayAdapter;
     private BluetoothGatt mBluetoothGatt;
     private ArrayList<Integer> heartRateValues;
+    private ArrayList<Integer> currentValues;
     private ArrayList<Integer> means;
     private Timer ping;
     private HRDBHelper dbHelper;
@@ -107,6 +118,13 @@ public class MainActivity extends AppCompatActivity {
     int maxIgnored = 15;
     int maxGroups = 10; //Should be even I guess
     int maxStored = 150;
+    boolean firstPeriod = true;
+    double delay = 0;
+    int referenceMean = 0;
+    int periodMean = 0;
+    static final long ONE_MINUTE_IN_MILLIS = 60000;//millisecs
+    Calendar referenceDate;
+    long t;
 
     private void displayNoAuth() {
         mHandler.post(() -> {
@@ -233,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
         db3 = setHelper.getReadableDatabase();
 
         heartRateValues = new ArrayList<>();
+        currentValues = new ArrayList<>();
         means = new ArrayList<>();
 
         // Ask for location permission if not already allowed
@@ -354,7 +373,6 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             mBluetoothStatus.setText("Bluetooth enabled");
             Toast.makeText(getApplicationContext(),"Bluetooth turned on",Toast.LENGTH_SHORT).show();
-
         }
         else{
             Toast.makeText(getApplicationContext(),"Bluetooth is already on", Toast.LENGTH_SHORT).show();
@@ -516,8 +534,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void startHrMeasure() {
         ignored = 0;
-        group = 0;
-        stored = 0;
+        /*group = 0;
+        stored = 0;*/
+
+        referenceDate = Calendar.getInstance();
+        t = referenceDate.getTimeInMillis();
+        delay = 30;
         BluetoothGattCharacteristic hmc = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Control_Characteristic_UUID);
         BluetoothGattCharacteristic sensorChar = mBluetoothGatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.MiBand1_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Sensor_Characteristic_UUID);
         sensorChar.setValue(new byte[] {0x01, 0x03, 0x19});
@@ -525,7 +547,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         ping = new Timer(12000, () -> { //ping every twelve seconds
-            hmc.setValue(new byte[]{0x16});
+            hmc.setValue(new byte[] {0x16});
             mBluetoothGatt.writeCharacteristic(hmc);
         });
         ping.start();
@@ -586,7 +608,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void HRCallback (byte currentHrValue) {
-        if (currentHrValue > 0) { //Check if sensor is working properly
+        Calendar measureTime = Calendar.getInstance();
+        if (currentHrValue > 35) { //Check if sensor is working properly
             final String heartRateValue = String.valueOf(currentHrValue);
             Log.d("HR", "Received: " + heartRateValue);
 
@@ -595,7 +618,49 @@ public class MainActivity extends AppCompatActivity {
                 ignored++;
                 mHandler.post(() -> mHrValue.setText(heartRateValue));
                 Log.d("CALLBACK", "Ignored");
-            } else if (stored <= maxStored){ //Learning process
+            } else if (firstPeriod) {
+                if ((measureTime.getTimeInMillis() - t) < (delay * ONE_MINUTE_IN_MILLIS)) {
+                    heartRateValues.add((int) currentHrValue);
+                    saveData(heartRateValue, measureTime);
+                    mHandler.post(() -> mHrValue.setText(heartRateValue));
+                } else {
+                    referenceMean = meanOfGroup();
+                    double std = standardDeviation(referenceMean);
+                    if (std < 10) {
+                        firstPeriod = false;
+                        delay = 10;
+                        heartRateValues.clear();
+                        referenceDate = Calendar.getInstance();
+                        t = referenceDate.getTimeInMillis();
+                    } else {
+                        delay += 5;
+                    }
+                }
+            } else if (!firstPeriod) {
+                if ((measureTime.getTimeInMillis() - t) < (delay * ONE_MINUTE_IN_MILLIS)) {
+                    heartRateValues.add((int) currentHrValue);
+                    saveData(heartRateValue, measureTime);
+                    mHandler.post(() -> mHrValue.setText(heartRateValue));
+                } else {
+                    periodMean = meanOfGroup();
+                    double std = standardDeviation(periodMean);
+                    if (std < 10) {
+                        double diffPercentage = meanDifference(referenceMean, periodMean);
+                        Pair<Double, Double> trend = calculateTrend();
+                        Log.d("CALLBACK", "Calculated trend: " + trend);
+                        if ((trend.first < 0) && (diffPercentage < -6)) {
+                            startVibrate();
+                            ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, 200);
+                            toneGenerator.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 3000);
+                        }
+                        heartRateValues.clear();
+                    } else {
+                        delay += 5;
+                    }
+                }
+            }
+
+            /*else if (stored <= maxStored){ //Learning process
                 heartRateValues.add((int) currentHrValue);
                 stored++;
                 Log.d("CALLBACK", "Stored");
@@ -613,7 +678,7 @@ public class MainActivity extends AppCompatActivity {
                 Pair<Double, Double> trend = calculateTrend();
                 Log.d("CALLBACK", "Calculated trend: " + trend);
                 // if (trend.first < 0) startVibrate(); // for example??? Have to adjust it after testing
-            }
+            }*/
 
         } else {
             if (zeroCounter > 4) {
@@ -637,27 +702,38 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private double meanDifference(int referenceMean, int periodMean) {
+        return (periodMean * 100 / referenceMean) - 100;
+    }
     private int meanOfGroup() {
         //Remove the maximum and minimum 25% of the values to prevent anomalies
-        for (int i = 0; i < ((25 * maxStored) / 100); i++) {
+        /*for (int i = 0; i < ((25 * maxStored) / 100); i++) {
             heartRateValues.remove(Collections.max(heartRateValues));
         }
         for (int i = 0; i < ((25 * maxStored) / 100); i++) {
             heartRateValues.remove(Collections.min(heartRateValues));
-        }
+        }*/
 
         int acc = 0;
         for (int x: heartRateValues) acc += x;
         int mean = acc / heartRateValues.size();
-        heartRateValues.clear();
+        // heartRateValues.clear();
         Log.d("CALLBACK", "Calculated mean: " + mean);
         return mean;
     }
 
+    private double standardDeviation(int mean) {
+        double standardDeviation = 0.0;
+        for (int i = 0; i < heartRateValues.size(); i++) {
+            standardDeviation += Math.pow(heartRateValues.get(i) - mean, 2);
+        }
+        return Math.sqrt(standardDeviation / heartRateValues.size());
+    }
+
     private Pair<Double, Double> calculateTrend() { //Using the two means method
         //Split observations into two groups
-        ArrayList<Integer> firstGroup = new ArrayList<>(means.subList(0, (means.size()) / 2));
-        ArrayList<Integer> secondGroup = new ArrayList<>(means.subList(means.size() / 2, means.size()));
+        ArrayList<Integer> firstGroup = new ArrayList<>(heartRateValues.subList(0, (heartRateValues.size()) / 2));
+        ArrayList<Integer> secondGroup = new ArrayList<>(heartRateValues.subList(heartRateValues.size() / 2, heartRateValues.size()));
 
         Log.d("TREND", String.valueOf(firstGroup));
         Log.d("TREND", String.valueOf(secondGroup));
