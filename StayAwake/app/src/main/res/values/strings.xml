@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Stay Awake</string>
+    <string name="database">/data/data/com.iris.StayAwake/databases/hr.db</string>
 </resources>

@@ -6,68 +6,68 @@
 6
 7    <uses-sdk
 8        android:minSdkVersion="15"
-8-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml
+8-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml
 9        android:targetSdkVersion="23" />
-9-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml
+9-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml
 10
 11    <uses-permission android:name="android.permission.BLUETOOTH" />
-11-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:5:5-68
-11-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:5:22-65
+11-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:5:5-68
+11-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:5:22-65
 12    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-12-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:6:5-74
-12-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:6:22-71
+12-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:6:5-74
+12-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:6:22-71
 13    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-13-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:7:5-79
-13-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:7:22-76
+13-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:7:5-79
+13-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:7:22-76
 14    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-14-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:8:5-81
-14-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:8:22-78
+14-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:8:5-81
+14-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:8:22-78
 15    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-15-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:9:5-81
-15-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:9:22-78
+15-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:9:5-81
+15-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:9:22-78
 16
 17    <permission
-17-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:11:5-89
+17-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:11:5-89
 18        android:name="android.permission.BLUETOOTH"
-18-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:11:17-60
+18-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:11:17-60
 19        android:label="BLUETOOTH" />
-19-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:11:61-86
+19-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:11:61-86
 20    <permission android:name="android.permission.BLUETOOTH_ADMIN" />
-20-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:12:5-69
-20-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:12:17-66
+20-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:12:5-69
+20-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:12:17-66
 21    <permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-21-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:13:5-74
-21-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:13:17-71
+21-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:13:5-74
+21-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:13:17-71
 22    <permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-22-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:14:5-76
-22-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:14:17-73
+22-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:14:5-76
+22-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:14:17-73
 23
 24    <application
-24-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:16:5-29:19
+24-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:16:5-29:19
 25        android:allowBackup="true"
-25-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:17:9-35
+25-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:17:9-35
 26        android:debuggable="true"
 27        android:icon="@mipmap/ic_launcher"
-27-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:18:9-43
+27-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:18:9-43
 28        android:label="@string/app_name"
-28-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:19:9-41
+28-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:19:9-41
 29        android:supportsRtl="true"
-29-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:20:9-35
+29-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:20:9-35
 30        android:testOnly="true"
 31        android:theme="@style/AppTheme" >
-31-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:21:9-40
+31-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:21:9-40
 32        <activity android:name="com.iris.StayAwake.MainActivity" >
-32-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:22:9-28:20
-32-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:22:19-65
+32-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:22:9-28:20
+32-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:22:19-65
 33            <intent-filter>
-33-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:23:13-27:29
+33-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:23:13-27:29
 34                <action android:name="android.intent.action.MAIN" />
-34-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:24:17-69
-34-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:24:25-66
+34-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:24:17-69
+34-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:24:25-66
 35
 36                <category android:name="android.intent.category.LAUNCHER" />
-36-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:26:17-77
-36-->/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/src/main/AndroidManifest.xml:26:27-74
+36-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:26:17-77
+36-->/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:26:27-74
 37            </intent-filter>
 38        </activity>
 39    </application>

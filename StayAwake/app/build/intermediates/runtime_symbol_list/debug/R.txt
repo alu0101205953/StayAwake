@@ -639,7 +639,8 @@ int string abc_shareactionprovider_share_with 0x7f0b0010
 int string abc_shareactionprovider_share_with_application 0x7f0b0011
 int string abc_toolbar_collapse_description 0x7f0b0012
 int string app_name 0x7f0b0013
-int string status_bar_notification_info_overflow 0x7f0b0014
+int string database 0x7f0b0014
+int string status_bar_notification_info_overflow 0x7f0b0015
 int style AlertDialog_AppCompat 0x7f0c0000
 int style AlertDialog_AppCompat_Light 0x7f0c0001
 int style Animation_AppCompat_Dialog 0x7f0c0002

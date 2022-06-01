@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "/home/iris/Clase/4º/TFG/pruebas-bluetooth-android/StayAwake/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v22/values-v22.xml",
+            "outputFile": "/home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v22/values-v22.xml",
             "map": [
                 {
                     "source": "/home/iris/.gradle/caches/transforms-2/files-2.1/aac12098f28938b568301ce9ae67f98e/appcompat-v7-23.3.0/res/values-v22/values-v22.xml",
