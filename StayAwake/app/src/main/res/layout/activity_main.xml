@@ -262,6 +262,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -280,12 +281,41 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/Layout11"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <com.robinhood.spark.SparkView
+            android:id="@+id/graph"
+            android:layout_width="250dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="20dp"
+            app:spark_lineWidth="1.5dp"
+            app:spark_scrubEnabled="true"
+            app:spark_lineColor="#F25449"
+            app:spark_animateChanges="true" />
+
+        <TextView
+            android:id="@+id/scrub_info_textview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textStyle="bold"
+            android:text="@string/scrub_empty"/>
+    </LinearLayout>
+
+
+
     <ListView
         android:id="@+id/devices_list_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:choiceMode="singleChoice" />
-
-
 
 </LinearLayout>

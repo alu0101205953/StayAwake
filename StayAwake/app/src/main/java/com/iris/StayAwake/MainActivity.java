@@ -43,6 +43,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.robinhood.spark.SparkView;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -53,6 +54,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import javax.crypto.Cipher;
@@ -73,13 +76,14 @@ public class MainActivity extends AppCompatActivity {
     private Button mDisconnectBtn;
     private Button mSubmitBtn;
     private ListView mDevicesListView;
-
-    private LinearLayout mLayout1, mLayout2, mLayout3, mLayout4, mLayout5, mLayout6, mLayout7, mLayout8, mLayout9, mLayout10;
+    private SparkView graph;
+    private LinearLayout mLayout1, mLayout2, mLayout3, mLayout4, mLayout5, mLayout6, mLayout7, mLayout8, mLayout9, mLayout10, mLayout11;
     private BluetoothAdapter mBTAdapter;
     private Set<BluetoothDevice> mPairedDevices;
     private ArrayAdapter<String> mBTArrayAdapter;
     private BluetoothGatt mBluetoothGatt;
     private ArrayList<Integer> heartRateValues;
+    private LinkedList<Integer> graphValues = new LinkedList<Integer>();
     private ArrayList<Integer> currentValues;
     private ArrayList<Integer> means;
     private Timer ping;
@@ -91,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private SQLiteDatabase db2;
     private SQLiteDatabase db3;
     private Handler mHandler;
+    private TextView scrubInfoTextView;
 
     byte[] mi_band_3_key = new byte[]{0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45};
     byte[] secret_key;
@@ -125,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
             mLayout7.setVisibility(View.VISIBLE);
             mLayout8.setVisibility(View.VISIBLE);
             mHrValue.setVisibility(View.VISIBLE);
+            mLayout11.setVisibility(View.VISIBLE);
             mHeader.setText(name);
         });
     }
@@ -141,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
             mLayout7.setVisibility(View.VISIBLE);
             mLayout8.setVisibility(View.VISIBLE);
             mHrValue.setVisibility(View.VISIBLE);
+            mLayout11.setVisibility(View.VISIBLE);
             mHeader.setText(name);
         });
     }
@@ -170,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
             mLayout6.setVisibility(View.GONE);
             mLayout7.setVisibility(View.GONE);
             mLayout8.setVisibility(View.GONE);
+            mLayout11.setVisibility(View.GONE);
             mHrValue.setVisibility(View.GONE);
             mHeader.setText("Stay Awake");
         });
@@ -199,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mHeader = (TextView)findViewById(R.id.header_text);
         mHrValue = (TextView)findViewById(R.id.Hr_txt);
+        scrubInfoTextView = (TextView) findViewById(R.id.scrub_info_textview);
         mBatteryValue = (TextView)findViewById(R.id.battery_txt);
         mBluetoothStatus = (TextView)findViewById(R.id.bluetooth_status);
         mScanBtn = (Button)findViewById(R.id.on);
@@ -218,6 +227,18 @@ public class MainActivity extends AppCompatActivity {
         mLayout8 = (LinearLayout)findViewById(R.id.Layout8);
         mLayout9 = (LinearLayout)findViewById(R.id.Layout9);
         mLayout10 = (LinearLayout)findViewById(R.id.Layout10);
+        mLayout11 = (LinearLayout)findViewById(R.id.Layout11);
+        graph = (SparkView) findViewById(R.id.graph);
+        graph.setScrubListener(new SparkView.OnScrubListener() {
+            @Override
+            public void onScrubbed(Object value) {
+                if (value == null) {
+                    scrubInfoTextView.setText(R.string.scrub_empty);
+                } else {
+                    scrubInfoTextView.setText(getString(R.string.scrub_format, value));
+                }
+            }
+        });
         mBTArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         mBTAdapter = BluetoothAdapter.getDefaultAdapter(); // get a handle on the bluetooth radio
 
@@ -603,7 +624,11 @@ public class MainActivity extends AppCompatActivity {
                         BluetoothGattCharacteristic hmc = gatt.getService(com.iris.StayAwake.BluetoothGatt.MiBand.HR_Service_UUID).getCharacteristic(com.iris.StayAwake.BluetoothGatt.MiBand.Control_Characteristic_UUID);
                         hmc.setValue(new byte[]{0x15, 0x01, 0x01});
                         Log.d("INFO", "HMC " + gatt.writeCharacteristic(hmc));
-                        Toast.makeText(getBaseContext(), "Reading...", Toast.LENGTH_SHORT).show();
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(getBaseContext(), "Reading...", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     } else {
                         Log.d("INFO", "onDescriptorWrite UUID: " + descriptor.getUuid().toString() + " value: " + Arrays.toString(descriptor.getValue()));
                     }
@@ -769,6 +794,23 @@ public class MainActivity extends AppCompatActivity {
         db.insert(HeartRateContract.HeartRateEntry.TABLE_NAME, null, cv);
     }
 
+    private void updateGraph(byte currentHrValue) {
+        if (graphValues.size() < 200) {
+            graphValues.add((int) currentHrValue);
+        } else {
+            graphValues.removeFirst();
+            graphValues.addLast((int) currentHrValue);
+        }
+        Integer[] intTmp = graphValues.toArray(new Integer[graphValues.size()]);
+        int[] tmp = new int[graphValues.size()];
+        for (int i = 0; i < intTmp.length; i++) {
+            tmp[i] = intTmp[i].intValue();
+        }
+
+        RandomizedAdapter adapter = new RandomizedAdapter(tmp);
+        graph.setAdapter(adapter);
+    }
+
     private void HRCallback (byte currentHrValue) {
         Calendar measureTime = Calendar.getInstance();
         if (currentHrValue > 35) { //Check if sensor is working properly
@@ -784,6 +826,7 @@ public class MainActivity extends AppCompatActivity {
                 if ((measureTime.getTimeInMillis() - t) < (delay * ONE_MINUTE_IN_MILLIS)) {
                     heartRateValues.add((int) currentHrValue);
                     saveData(heartRateValue, measureTime);
+                    updateGraph(currentHrValue);
                     mHandler.post(() -> mHrValue.setText(heartRateValue));
                 } else {
                     referenceMean = meanOfGroup();
@@ -802,6 +845,7 @@ public class MainActivity extends AppCompatActivity {
                 if ((measureTime.getTimeInMillis() - t) < (delay * ONE_MINUTE_IN_MILLIS)) {
                     heartRateValues.add((int) currentHrValue);
                     saveData(heartRateValue, measureTime);
+                    updateGraph(currentHrValue);
                     mHandler.post(() -> mHrValue.setText(heartRateValue));
                 } else {
                     periodMean = meanOfGroup();

@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Stay Awake</string>
     <string name="database">/data/data/com.iris.StayAwake/databases/hr.db</string>
+    <string name="scrub_format">Heart rate value: %1$s</string>
+    <string name="scrub_empty">Tap and hold the graph to see a value.</string>
 </resources>

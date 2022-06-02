@@ -5,6 +5,7 @@ INJECTED from /home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/a
 INJECTED from /home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:2:1-31:12
 INJECTED from /home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml:2:1-31:12
 MERGED from [com.android.support:appcompat-v7:23.3.0] /home/iris/.gradle/caches/transforms-2/files-2.1/aac12098f28938b568301ce9ae67f98e/appcompat-v7-23.3.0/AndroidManifest.xml:17:1-27:12
+MERGED from [com.robinhood.spark:spark:1.2.0] /home/iris/.gradle/caches/transforms-2/files-2.1/6b420ffde7c079996013c06438f44856/spark-1.2.0/AndroidManifest.xml:2:1-10:12
 MERGED from [com.android.support:animated-vector-drawable:23.3.0] /home/iris/.gradle/caches/transforms-2/files-2.1/c9eb1a84482eb8c0259942698f7c472a/animated-vector-drawable-23.3.0/AndroidManifest.xml:2:1-9:12
 MERGED from [com.android.support:support-vector-drawable:23.3.0] /home/iris/.gradle/caches/transforms-2/files-2.1/a5f7168439726cb2c008f1f33ac09896/support-vector-drawable-23.3.0/AndroidManifest.xml:2:1-9:12
 MERGED from [com.android.support:support-v4:23.3.0] /home/iris/.gradle/caches/transforms-2/files-2.1/3fccb1571cefedb0c4eb192cf4fed996/support-v4-23.3.0/AndroidManifest.xml:17:1-24:12
@@ -103,6 +104,8 @@ INJECTED from /home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/a
 INJECTED from /home/iris/Clase/4º/TFG/TFG_Seguridad_en_dispositivos/StayAwake/app/src/main/AndroidManifest.xml
 MERGED from [com.android.support:appcompat-v7:23.3.0] /home/iris/.gradle/caches/transforms-2/files-2.1/aac12098f28938b568301ce9ae67f98e/appcompat-v7-23.3.0/AndroidManifest.xml:21:5-23:78
 MERGED from [com.android.support:appcompat-v7:23.3.0] /home/iris/.gradle/caches/transforms-2/files-2.1/aac12098f28938b568301ce9ae67f98e/appcompat-v7-23.3.0/AndroidManifest.xml:21:5-23:78
+MERGED from [com.robinhood.spark:spark:1.2.0] /home/iris/.gradle/caches/transforms-2/files-2.1/6b420ffde7c079996013c06438f44856/spark-1.2.0/AndroidManifest.xml:6:5-8:41
+MERGED from [com.robinhood.spark:spark:1.2.0] /home/iris/.gradle/caches/transforms-2/files-2.1/6b420ffde7c079996013c06438f44856/spark-1.2.0/AndroidManifest.xml:6:5-8:41
 MERGED from [com.android.support:animated-vector-drawable:23.3.0] /home/iris/.gradle/caches/transforms-2/files-2.1/c9eb1a84482eb8c0259942698f7c472a/animated-vector-drawable-23.3.0/AndroidManifest.xml:5:5-44
 MERGED from [com.android.support:animated-vector-drawable:23.3.0] /home/iris/.gradle/caches/transforms-2/files-2.1/c9eb1a84482eb8c0259942698f7c472a/animated-vector-drawable-23.3.0/AndroidManifest.xml:5:5-44
 MERGED from [com.android.support:support-vector-drawable:23.3.0] /home/iris/.gradle/caches/transforms-2/files-2.1/a5f7168439726cb2c008f1f33ac09896/support-vector-drawable-23.3.0/AndroidManifest.xml:5:5-43

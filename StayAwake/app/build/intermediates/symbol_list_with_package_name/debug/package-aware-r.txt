@@ -167,6 +167,18 @@ attr showAsAction
 attr showDividers
 attr showText
 attr singleChoiceItemLayout
+attr spark_SparkViewStyle
+attr spark_animateChanges
+attr spark_baseLineColor
+attr spark_baseLineWidth
+attr spark_cornerRadius
+attr spark_fill
+attr spark_fillType
+attr spark_lineColor
+attr spark_lineWidth
+attr spark_scrubEnabled
+attr spark_scrubLineColor
+attr spark_scrubLineWidth
 attr spinBars
 attr spinnerDropDownItemStyle
 attr spinnerStyle
@@ -293,6 +305,9 @@ color secondary_text_default_material_dark
 color secondary_text_default_material_light
 color secondary_text_disabled_material_dark
 color secondary_text_disabled_material_light
+color spark_base_line_color
+color spark_line_color
+color spark_scrub_line_color
 color switch_thumb_disabled_material_dark
 color switch_thumb_disabled_material_light
 color switch_thumb_material_dark
@@ -374,6 +389,10 @@ dimen highlight_alpha_material_light
 dimen notification_large_icon_height
 dimen notification_large_icon_width
 dimen notification_subtext_size
+dimen spark_base_line_width
+dimen spark_corner_radius
+dimen spark_line_width
+dimen spark_scrub_line_width
 drawable abc_ab_share_pack_mtrl_alpha
 drawable abc_action_bar_item_background_material
 drawable abc_btn_borderless_material
@@ -453,6 +472,7 @@ drawable notification_template_icon_bg
 id Hr_txt
 id Layout1
 id Layout10
+id Layout11
 id Layout2
 id Layout3
 id Layout4
@@ -497,11 +517,13 @@ id devices_list_view
 id disableHome
 id disconnect
 id discover
+id down
 id edit_query
 id end
 id end_padder
 id expand_activities_button
 id expanded_menu
+id graph
 id header
 id header_text
 id heart
@@ -534,6 +556,7 @@ id screen
 id scrollIndicatorDown
 id scrollIndicatorUp
 id scrollView
+id scrub_info_textview
 id search_badge
 id search_bar
 id search_button
@@ -565,6 +588,7 @@ id time
 id title
 id title_template
 id topPanel
+id towardZero
 id up
 id useLogo
 id withText
@@ -641,6 +665,8 @@ string abc_shareactionprovider_share_with_application
 string abc_toolbar_collapse_description
 string app_name
 string database
+string scrub_empty
+string scrub_format
 string status_bar_notification_info_overflow
 style AlertDialog_AppCompat
 style AlertDialog_AppCompat_Light
@@ -961,6 +987,7 @@ style Widget_AppCompat_Spinner_Underlined
 style Widget_AppCompat_TextView_SpinnerItem
 style Widget_AppCompat_Toolbar
 style Widget_AppCompat_Toolbar_Button_Navigation
+style spark_SparkView
 styleable ActionBar background backgroundSplit backgroundStacked contentInsetEnd contentInsetLeft contentInsetRight contentInsetStart customNavigationLayout displayOptions divider elevation height hideOnContentScroll homeAsUpIndicator homeLayout icon indeterminateProgressStyle itemPadding logo navigationMode popupTheme progressBarPadding progressBarStyle subtitle subtitleTextStyle title titleTextStyle
 styleable ActionBarLayout android_layout_gravity
 styleable ActionMenuItemView android_minWidth
@@ -990,3 +1017,4 @@ styleable Toolbar android_gravity android_minHeight collapseContentDescription c
 styleable View android_theme android_focusable paddingEnd paddingStart theme
 styleable ViewBackgroundHelper android_background backgroundTint backgroundTintMode
 styleable ViewStubCompat android_id android_layout android_inflatedId
+styleable spark_SparkView spark_animateChanges spark_baseLineColor spark_baseLineWidth spark_cornerRadius spark_fill spark_fillType spark_lineColor spark_lineWidth spark_scrubEnabled spark_scrubLineColor spark_scrubLineWidth

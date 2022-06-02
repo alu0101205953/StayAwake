@@ -30,4 +30,5 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     testImplementation 'junit:junit:4.12'
     implementation 'com.android.support:appcompat-v7:23.3.0'
+    implementation 'com.robinhood.spark:spark:1.2.0'
 }
